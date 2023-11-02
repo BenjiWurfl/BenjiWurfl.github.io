@@ -1,3 +1,4 @@
+const db = firebase.firestore();
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
   daysContainer = document.querySelector(".days"),
@@ -10,12 +11,12 @@ const calendar = document.querySelector(".calendar"),
   eventDate = document.querySelector(".event-date"),
   eventsContainer = document.querySelector(".events"),
   addEventBtn = document.querySelector(".add-event"),
-  addEventWrapper = document.querySelector(".add-event-wrapper "),
-  addEventCloseBtn = document.querySelector(".close "),
-  addEventTitle = document.querySelector(".event-name "),
-  addEventFrom = document.querySelector(".event-time-from "),
-  addEventTo = document.querySelector(".event-time-to "),
-  addEventSubmit = document.querySelector(".add-event-btn ");
+  addEventWrapper = document.querySelector(".add-event-wrapper"),
+  addEventCloseBtn = document.querySelector(".close"),
+  addEventTitle = document.querySelector(".event-name"),
+  addEventFrom = document.querySelector(".event-time-from"),
+  addEventTo = document.querySelector(".event-time-to"),
+  addEventSubmit = document.querySelector(".add-event-btn");
 
 let today = new Date();
 let activeDay;
@@ -38,6 +39,79 @@ const months = [
 ];
 
 const eventsArr = [];
+
+// Funktion zum Hinzufügen eines Events zu Firebase Firestore
+function addEventToFirestore(event) {
+  const db = firebase.firestore();
+  db.collection("events")
+    .add(event)
+    .then((docRef) => {
+      console.log("Event wurde erfolgreich in Firestore gespeichert mit der ID: ", docRef.id);
+    })
+    .catch((error) => {
+      console.error("Fehler beim Speichern des Events in Firestore: ", error);
+    });
+}
+
+// Funktion zum Abrufen von Events aus Firebase Firestore
+function getEventsFromFirestore(day, month, year) {
+  const db = firebase.firestore();
+  db.collection("events")
+    .where("day", "==", day)
+    .where("month", "==", month)
+    .where("year", "==", year)
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        // Hier kannst du die Events aus der Firestore-Dokumentendaten verwenden und sie im Kalender anzeigen.
+        const eventData = doc.data();
+        console.log("Event-Daten aus Firestore: ", eventData);
+        // Füge den Code hinzu, um die Events im Kalender anzuzeigen.
+      });
+    })
+    .catch((error) => {
+      console.error("Fehler beim Abrufen von Events aus Firestore: ", error);
+    });
+}
+
+// Funktion zum Löschen eines Events in Firebase Firestore
+function deleteEventFromFirestore(eventId) {
+  const db = firebase.firestore();
+  db.collection("events")
+    .doc(eventId)
+    .delete()
+    .then(() => {
+      console.log("Event wurde aus Firestore gelöscht.");
+    })
+    .catch((error) => {
+      console.error("Fehler beim Löschen des Events in Firestore: ", error);
+    });
+}
+
+// Funktion zum Abrufen der Events aus Firebase Firestore und Lokaler Speicherung
+function getEvents() {
+  const db = firebase.firestore();
+  db.collection("events")
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        const eventData = doc.data();
+        eventsArr.push(eventData);
+      });
+      console.log(eventsArr);
+    })
+    .catch((error) => {
+      console.error("Fehler beim Abrufen von Events aus Firestore: ", error);
+    });
+
+  // Überprüfe, ob Events bereits im lokalen Speicher gespeichert sind
+  const localEvents = JSON.parse(localStorage.getItem("events"));
+  if (localEvents) {
+    eventsArr.push(...localEvents);
+  }
+  console.log(eventsArr);
+}
+
 getEvents();
 console.log(eventsArr);
 
@@ -436,3 +510,21 @@ function convertTime(time) {
   time = timeHour + ":" + timeMin + " " + timeFormat;
   return time;
 }
+
+function saveEvents() {
+    const db = firebase.firestore();
+    // Firebase Firestore speichern
+    eventsArr.forEach((event) => {
+      db.collection("events")
+        .add(event)
+        .then((docRef) => {
+          console.log("Event wurde erfolgreich in Firestore gespeichert mit der ID: ", docRef.id);
+        })
+        .catch((error) => {
+          console.error("Fehler beim Speichern des Events in Firestore: ", error);
+        });
+    });
+  
+    // Lokalen Speicher aktualisieren
+    localStorage.setItem("events", JSON.stringify(eventsArr));
+  }
