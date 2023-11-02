@@ -288,7 +288,7 @@ addEventTitle.addEventListener("input", (e) => {
   addEventTitle.value = addEventTitle.value.slice(0, 60);
 });
 
-function defineProperty() {
+/*function defineProperty() {
   var osccred = document.createElement("div");
   osccred.innerHTML =
     "A Project By <a href='https://www.youtube.com/channel/UCiUtBDVaSmMGKxg1HYeK-BQ' target=_blank>Open Source Coding</a>";
@@ -307,6 +307,7 @@ function defineProperty() {
 }
 
 defineProperty();
+*/
 
 //allow only time in eventtime from and to
 addEventFrom.addEventListener("input", (e) => {
