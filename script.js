@@ -266,28 +266,6 @@ document.addEventListener("click", (e) => {
   }
 });
 
-function sendEventToZapier(eventData) {
-    const webhookUrl = "https://hooks.zapier.com/hooks/catch/16948969/3zuh3m2/"; // Ihre Webhook-URL
-  
-    fetch(webhookUrl, {
-      method: "POST",
-      body: JSON.stringify(eventData),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-      .then(response => {
-        if (response.ok) {
-          console.log("Daten erfolgreich an Zapier gesendet");
-        } else {
-          console.error("Fehler beim Senden der Daten an Zapier");
-        }
-      })
-      .catch(error => {
-        console.error("Fehler: " + error);
-      });
-  }
-
 //allow 50 chars in eventtitle
 addEventTitle.addEventListener("input", (e) => {
   addEventTitle.value = addEventTitle.value.slice(0, 60);
@@ -313,6 +291,28 @@ addEventTo.addEventListener("input", (e) => {
     addEventTo.value = addEventTo.value.slice(0, 5);
   }
 });
+
+function sendEventToZapier(eventData) {
+    const webhookUrl = "https://hooks.zapier.com/hooks/catch/16948969/3zuh3m2/"; // Ihre Webhook-URL
+  
+    fetch(webhookUrl, {
+      method: "POST",
+      body: JSON.stringify(eventData),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+      .then(response => {
+        if (response.ok) {
+          console.log("Daten erfolgreich an Zapier gesendet");
+        } else {
+          console.error("Fehler beim Senden der Daten an Zapier");
+        }
+      })
+      .catch(error => {
+        console.error("Fehler: " + error);
+      });
+  }
 
 //function to add event to eventsArr
 addEventSubmit.addEventListener("click", () => {
@@ -402,6 +402,15 @@ addEventSubmit.addEventListener("click", () => {
     activeDayEl.classList.add("event");
   }
 });
+
+const eventData = {
+    eventTitle: eventTitle,
+    eventTimeFrom: eventTimeFrom,
+    eventTimeTo: eventTimeTo,
+    date: activeDay + " " + months[month] + " " + year,
+  };
+
+  sendEventToZapier(eventData);
 
 //function to delete event when clicked on event
 eventsContainer.addEventListener("click", (e) => {
