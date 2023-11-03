@@ -401,9 +401,8 @@ addEventSubmit.addEventListener("click", () => {
   if (!activeDayEl.classList.contains("event")) {
     activeDayEl.classList.add("event");
   }
-});
 
-const eventData = {
+  const eventData = {
     eventTitle: eventTitle,
     eventTimeFrom: eventTimeFrom,
     eventTimeTo: eventTimeTo,
@@ -411,6 +410,7 @@ const eventData = {
   };
 
   sendEventToZapier(eventData);
+});
 
 //function to delete event when clicked on event
 eventsContainer.addEventListener("click", (e) => {
