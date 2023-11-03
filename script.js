@@ -266,6 +266,28 @@ document.addEventListener("click", (e) => {
   }
 });
 
+function sendEventToZapier(eventData) {
+    const webhookUrl = "https://hooks.zapier.com/hooks/catch/16948969/3zuh3m2/"; // Ihre Webhook-URL
+  
+    fetch(webhookUrl, {
+      method: "POST",
+      body: JSON.stringify(eventData),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+      .then(response => {
+        if (response.ok) {
+          console.log("Daten erfolgreich an Zapier gesendet");
+        } else {
+          console.error("Fehler beim Senden der Daten an Zapier");
+        }
+      })
+      .catch(error => {
+        console.error("Fehler: " + error);
+      });
+  }
+
 //allow 50 chars in eventtitle
 addEventTitle.addEventListener("input", (e) => {
   addEventTitle.value = addEventTitle.value.slice(0, 60);
