@@ -1,4 +1,4 @@
-//const db = firebase.firestore();
+db = firebase.firestore();
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
   daysContainer = document.querySelector(".days"),
