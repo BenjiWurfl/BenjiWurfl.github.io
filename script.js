@@ -1,4 +1,3 @@
-const db = firebase.firestore();
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
   daysContainer = document.querySelector(".days"),
@@ -41,6 +40,23 @@ const months = [
 const eventsArr = [];
 getEvents();
 console.log(eventsArr);
+
+function getEventsFromFirestore() {
+    db.collection("events")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const eventData = doc.data();
+          // Verarbeiten Sie die abgerufenen Daten, z.B., fügen Sie sie zu eventsArr hinzu
+          eventsArr.push(eventData);
+        });
+        // Aktualisieren Sie Ihre Kalenderanzeige mit den abgerufenen Daten
+        updateCalendarWithEvents();
+      })
+      .catch((error) => {
+        console.error("Fehler beim Abrufen der Events aus Firestore: ", error);
+      });
+  }
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
 function initCalendar() {
@@ -99,6 +115,8 @@ function initCalendar() {
   }
   daysContainer.innerHTML = days;
   addListner();
+
+  getEventsFromFirestore();
 }
 
 //function to add month and year on prev and next button
@@ -292,6 +310,21 @@ addEventTo.addEventListener("input", (e) => {
   }
 });
 
+function saveEventsToFirestore() {
+    // Annahme: eventsArr enthält die Event-Daten
+    // Dies ist ein vereinfachtes Beispiel, und Sie sollten dies an Ihre Anforderungen anpassen.
+    eventsArr.forEach((eventData) => {
+      db.collection("events")
+        .add(eventData)
+        .then((docRef) => {
+          console.log("Event erfolgreich in Firestore gespeichert mit ID: ", docRef.id);
+        })
+        .catch((error) => {
+          console.error("Fehler beim Speichern des Events: ", error);
+        });
+    });
+  }
+
 //function to add event to eventsArr
 addEventSubmit.addEventListener("click", () => {
   const eventTitle = addEventTitle.value;
@@ -301,23 +334,6 @@ addEventSubmit.addEventListener("click", () => {
     alert("Please fill all the fields");
     return;
   }
-
-  // Hier erstellen Sie ein neues Dokument in der Firestore-Sammlung "events"
-  db.collection("events")
-    .add({
-      title: eventTitle,
-      timeFrom: eventTimeFrom,
-      timeTo: eventTimeTo,
-      day: activeDay,
-      month: month + 1,
-      year: year,
-    })
-    .then((docRef) => {
-      console.log("Dokument mit ID: ", docRef.id, " erfolgreich hinzugefügt");
-    })
-    .catch((error) => {
-      console.error("Fehler beim Hinzufügen des Dokuments: ", error);
-    });
 
   //check correct time format 24 hour
   const timeFromArr = eventTimeFrom.split(":");
@@ -360,6 +376,10 @@ addEventSubmit.addEventListener("click", () => {
     title: eventTitle,
     time: timeFrom + " - " + timeTo,
   };
+
+  eventsArr.push(newEvent);
+  saveEventsToFirestore(newEvent);
+
   console.log(newEvent);
   console.log(activeDay);
   let eventAdded = false;
@@ -397,6 +417,21 @@ addEventSubmit.addEventListener("click", () => {
     activeDayEl.classList.add("event");
   }
 });
+
+/*function deleteEventInFirestore(eventId) {
+    db.collection("events")
+      .doc(eventId)
+      .delete()
+      .then(() => {
+        console.log("Event in Firestore gelöscht.");
+        // Aktualisieren Sie Ihre Kalenderanzeige, um das gelöschte Event zu entfernen
+        updateCalendarAfterEventDeletion(eventId);
+      })
+      .catch((error) => {
+        console.error("Fehler beim Löschen des Events in Firestore: ", error);
+      });
+  }
+  */
 
 //function to delete event when clicked on event
 eventsContainer.addEventListener("click", (e) => {
