@@ -292,28 +292,6 @@ addEventTo.addEventListener("input", (e) => {
   }
 });
 
-function sendEventToZapier(eventData) {
-    const webhookUrl = "https://hooks.zapier.com/hooks/catch/16948969/3zuh3m2/"; // Ihre Webhook-URL
-  
-    fetch(webhookUrl, {
-      method: "POST",
-      body: JSON.stringify(eventData),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-      .then(response => {
-        if (response.ok) {
-          console.log("Daten erfolgreich an Zapier gesendet");
-        } else {
-          console.error("Fehler beim Senden der Daten an Zapier");
-        }
-      })
-      .catch(error => {
-        console.error("Fehler: " + error);
-      });
-  }
-
 //function to add event to eventsArr
 addEventSubmit.addEventListener("click", () => {
   const eventTitle = addEventTitle.value;
@@ -323,6 +301,23 @@ addEventSubmit.addEventListener("click", () => {
     alert("Please fill all the fields");
     return;
   }
+
+  // Hier erstellen Sie ein neues Dokument in der Firestore-Sammlung "events"
+  db.collection("events")
+    .add({
+      title: eventTitle,
+      timeFrom: eventTimeFrom,
+      timeTo: eventTimeTo,
+      day: activeDay,
+      month: month + 1,
+      year: year,
+    })
+    .then((docRef) => {
+      console.log("Dokument mit ID: ", docRef.id, " erfolgreich hinzugefügt");
+    })
+    .catch((error) => {
+      console.error("Fehler beim Hinzufügen des Dokuments: ", error);
+    });
 
   //check correct time format 24 hour
   const timeFromArr = eventTimeFrom.split(":");
@@ -401,15 +396,6 @@ addEventSubmit.addEventListener("click", () => {
   if (!activeDayEl.classList.contains("event")) {
     activeDayEl.classList.add("event");
   }
-
-  const eventData = {
-    eventTitle: eventTitle,
-    eventTimeFrom: eventTimeFrom,
-    eventTimeTo: eventTimeTo,
-    date: activeDay + " " + months[month] + " " + year,
-  };
-
-  sendEventToZapier(eventData);
 });
 
 //function to delete event when clicked on event
