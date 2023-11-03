@@ -377,9 +377,6 @@ addEventSubmit.addEventListener("click", () => {
     time: timeFrom + " - " + timeTo,
   };
 
-  eventsArr.push(newEvent);
-  saveEventsToFirestore(newEvent);
-
   console.log(newEvent);
   console.log(activeDay);
   let eventAdded = false;
@@ -416,6 +413,9 @@ addEventSubmit.addEventListener("click", () => {
   if (!activeDayEl.classList.contains("event")) {
     activeDayEl.classList.add("event");
   }
+
+  //eventsArr.push(newEvent);
+  saveEventsToFirestore(newEvent);
 });
 
 /*function deleteEventInFirestore(eventId) {
