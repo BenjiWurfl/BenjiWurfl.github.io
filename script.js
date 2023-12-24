@@ -52,6 +52,8 @@ const months = [
 ];
 
 const eventsArr = [];
+// Aufruf zum Laden der Events, wenn die Seite geladen wird
+loadEventsFromFirebase();
 console.log(eventsArr);
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
@@ -454,11 +456,6 @@ function loadEventsFromFirebase() {
     initCalendar(); // Stelle sicher, dass der Kalender auch im Fehlerfall initialisiert wird
   });
 }
-
-// Aufruf zum Laden der Events, wenn die Seite geladen wird
-loadEventsFromFirebase();
-
-
 
 function convertTime(time) {
   //convert time to 24 hour format
