@@ -52,7 +52,6 @@ const months = [
 ];
 
 const eventsArr = [];
-getEvents();
 console.log(eventsArr);
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
@@ -261,7 +260,7 @@ function updateEvents(date) {
         </div>`;
   }
   eventsContainer.innerHTML = events;
-  saveEvents();
+  saveEventsToFirebase();
 }
 
 //function to add event
@@ -442,16 +441,24 @@ function saveEventsToFirebase() {
 function loadEventsFromFirebase() {
   const eventsRef = db.collection('events');
   eventsRef.doc(`${year}-${month + 1}`).get().then(doc => {
+    eventsArr.length = 0; // Lösche vorhandene Events, bevor neue geladen werden
     if (doc.exists) {
       eventsArr.push(...doc.data().events);
-      updateEvents(activeDay);
     } else {
       console.log('No such document in Firebase!');
     }
+    initCalendar(); // Initialisiere den Kalender hier, nachdem die Daten geladen oder nicht gefunden wurden
+    updateEvents(activeDay);
   }).catch(error => {
     console.error('Error loading events from Firebase', error);
+    initCalendar(); // Stelle sicher, dass der Kalender auch im Fehlerfall initialisiert wird
   });
 }
+
+// Aufruf zum Laden der Events, wenn die Seite geladen wird
+loadEventsFromFirebase();
+
+
 
 function convertTime(time) {
   //convert time to 24 hour format
