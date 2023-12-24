@@ -1,16 +1,19 @@
-  const firebaseConfig = {
-    apiKey: "AIzaSyBe7d9bllq8RnmI6xxEBk3oub3qogPT2aM",
-    authDomain: "thinkwise-c7673.firebaseapp.com",
-    databaseURL: "https://thinkwise-c7673-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "thinkwise-c7673",
-    storageBucket: "thinkwise-c7673.appspot.com",
-    messagingSenderId: "37732571551",
-    appId: "1:37732571551:web:9b90a849ac5454f33a85aa",
-    measurementId: "G-8957WM4SB7"
-  };
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js';
+import { getFirestore, collection } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js';
 
-	const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+const firebaseApp = initializeApp( {
+  apiKey: "AIzaSyBe7d9bllq8RnmI6xxEBk3oub3qogPT2aM",
+  authDomain: "thinkwise-c7673.firebaseapp.com",
+  databaseURL: "https://thinkwise-c7673-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "thinkwise-c7673",
+  storageBucket: "thinkwise-c7673.appspot.com",
+  messagingSenderId: "37732571551",
+  appId: "1:37732571551:web:9b90a849ac5454f33a85aa",
+  measurementId: "G-8957WM4SB7"
+});
+
+const db = getFirestore(firebaseApp);
+const eventCol = collection(db, 'events');
 
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
