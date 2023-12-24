@@ -1,3 +1,17 @@
+  const firebaseConfig = {
+    apiKey: "AIzaSyBe7d9bllq8RnmI6xxEBk3oub3qogPT2aM",
+    authDomain: "thinkwise-c7673.firebaseapp.com",
+    databaseURL: "https://thinkwise-c7673-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "thinkwise-c7673",
+    storageBucket: "thinkwise-c7673.appspot.com",
+    messagingSenderId: "37732571551",
+    appId: "1:37732571551:web:9b90a849ac5454f33a85aa",
+    measurementId: "G-8957WM4SB7"
+  };
+
+	const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
   daysContainer = document.querySelector(".days"),
@@ -412,18 +426,31 @@ eventsContainer.addEventListener("click", (e) => {
   }
 });
 
-//function to save events in local storage
-function saveEvents() {
-  localStorage.setItem("events", JSON.stringify(eventsArr));
+// Funktion zum Speichern von Events in Firebase
+function saveEventsToFirebase() {
+  const eventsRef = db.collection('events');
+  eventsRef.doc(`${year}-${month + 1}`).set({
+    events: eventsArr
+  }).then(() => {
+    console.log('Events saved to Firebase');
+  }).catch(error => {
+    console.error('Error saving events to Firebase', error);
+  });
 }
 
-//function to get events from local storage
-function getEvents() {
-  //check if events are already saved in local storage then return event else nothing
-  if (localStorage.getItem("events") === null) {
-    return;
-  }
-  eventsArr.push(...JSON.parse(localStorage.getItem("events")));
+// Funktion zum Laden von Events aus Firebase
+function loadEventsFromFirebase() {
+  const eventsRef = db.collection('events');
+  eventsRef.doc(`${year}-${month + 1}`).get().then(doc => {
+    if (doc.exists) {
+      eventsArr.push(...doc.data().events);
+      updateEvents(activeDay);
+    } else {
+      console.log('No such document in Firebase!');
+    }
+  }).catch(error => {
+    console.error('Error loading events from Firebase', error);
+  });
 }
 
 function convertTime(time) {
