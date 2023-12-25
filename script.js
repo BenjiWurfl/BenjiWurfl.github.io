@@ -1,7 +1,8 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js';
-import { getFirestore, collection } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js';
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore"; 
 
-const firebaseApp = initializeApp( {
+const firebaseConfig = {
   apiKey: "AIzaSyBe7d9bllq8RnmI6xxEBk3oub3qogPT2aM",
   authDomain: "thinkwise-c7673.firebaseapp.com",
   databaseURL: "https://thinkwise-c7673-default-rtdb.europe-west1.firebasedatabase.app",
@@ -10,10 +11,10 @@ const firebaseApp = initializeApp( {
   messagingSenderId: "37732571551",
   appId: "1:37732571551:web:9b90a849ac5454f33a85aa",
   measurementId: "G-8957WM4SB7"
-});
+};
 
-const db = getFirestore(firebaseApp);
-const eventCol = collection(db, 'events');
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
@@ -55,8 +56,7 @@ const months = [
 ];
 
 const eventsArr = [];
-// Aufruf zum Laden der Events, wenn die Seite geladen wird
-loadEventsFromFirebase();
+getEvents();
 console.log(eventsArr);
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
@@ -265,7 +265,7 @@ function updateEvents(date) {
         </div>`;
   }
   eventsContainer.innerHTML = events;
-  saveEventsToFirebase();
+  saveEvents();
 }
 
 //function to add event
@@ -430,34 +430,18 @@ eventsContainer.addEventListener("click", (e) => {
   }
 });
 
-// Funktion zum Speichern von Events in Firebase
-function saveEventsToFirebase() {
-  const eventsRef = db.collection('events');
-  eventsRef.doc(`${year}-${month + 1}`).set({
-    events: eventsArr
-  }).then(() => {
-    console.log('Events saved to Firebase');
-  }).catch(error => {
-    console.error('Error saving events to Firebase', error);
-  });
+//function to save events in local storage
+function saveEvents() {
+  localStorage.setItem("events", JSON.stringify(eventsArr));
 }
 
-// Funktion zum Laden von Events aus Firebase
-function loadEventsFromFirebase() {
-  const eventsRef = db.collection('events');
-  eventsRef.doc(`${year}-${month + 1}`).get().then(doc => {
-    eventsArr.length = 0; // Lösche vorhandene Events, bevor neue geladen werden
-    if (doc.exists) {
-      eventsArr.push(...doc.data().events);
-    } else {
-      console.log('No such document in Firebase!');
-    }
-    initCalendar(); // Initialisiere den Kalender hier, nachdem die Daten geladen oder nicht gefunden wurden
-    updateEvents(activeDay);
-  }).catch(error => {
-    console.error('Error loading events from Firebase', error);
-    initCalendar(); // Stelle sicher, dass der Kalender auch im Fehlerfall initialisiert wird
-  });
+//function to get events from local storage
+function getEvents() {
+  //check if events are already saved in local storage then return event else nothing
+  if (localStorage.getItem("events") === null) {
+    return;
+  }
+  eventsArr.push(...JSON.parse(localStorage.getItem("events")));
 }
 
 function convertTime(time) {
