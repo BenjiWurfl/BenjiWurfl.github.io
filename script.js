@@ -1,3 +1,4 @@
+/*
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore"; 
@@ -15,6 +16,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+*/
 
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
