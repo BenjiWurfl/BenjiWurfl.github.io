@@ -1,23 +1,3 @@
-/*
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore"; 
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBe7d9bllq8RnmI6xxEBk3oub3qogPT2aM",
-  authDomain: "thinkwise-c7673.firebaseapp.com",
-  databaseURL: "https://thinkwise-c7673-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "thinkwise-c7673",
-  storageBucket: "thinkwise-c7673.appspot.com",
-  messagingSenderId: "37732571551",
-  appId: "1:37732571551:web:9b90a849ac5454f33a85aa",
-  measurementId: "G-8957WM4SB7"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-*/
-
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
   daysContainer = document.querySelector(".days"),
@@ -312,16 +292,26 @@ addEventTo.addEventListener("input", (e) => {
 });
 
 //function to add event to eventsArr
+//**** Add Event to Firestore ****
 addEventSubmit.addEventListener("click", () => {
-  const eventTitle = addEventTitle.value;
-  const eventTimeFrom = addEventFrom.value;
-  const eventTimeTo = addEventTo.value;
-  if (eventTitle === "" || eventTimeFrom === "" || eventTimeTo === "") {
-    alert("Please fill all the fields");
+  // Überprüfen, ob ein Benutzer angemeldet ist
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Sie sind nicht angemeldet!");
     return;
   }
 
-  //check correct time format 24 hour
+  // Die restlichen Event-Details sammeln
+  const eventTitle = addEventTitle.value;
+  const eventTimeFrom = addEventFrom.value;
+  const eventTimeTo = addEventTo.value;
+
+  if (eventTitle === "" || eventTimeFrom === "" || eventTimeTo === "") {
+    alert("Bitte füllen Sie alle Felder aus.");
+    return;
+  }
+
+  // Zeitformat überprüfen
   const timeFromArr = eventTimeFrom.split(":");
   const timeToArr = eventTimeTo.split(":");
   if (
@@ -332,72 +322,74 @@ addEventSubmit.addEventListener("click", () => {
     timeToArr[0] > 23 ||
     timeToArr[1] > 59
   ) {
-    alert("Invalid Time Format");
+    alert("Ungültiges Zeitformat.");
     return;
   }
 
+  // Konvertierte Zeit für die Anzeige erstellen
   const timeFrom = convertTime(eventTimeFrom);
   const timeTo = convertTime(eventTimeTo);
 
-  //check if event is already added
-  let eventExist = false;
-  eventsArr.forEach((event) => {
-    if (
-      event.day === activeDay &&
-      event.month === month + 1 &&
-      event.year === year
-    ) {
-      event.events.forEach((event) => {
-        if (event.title === eventTitle) {
-          eventExist = true;
-        }
-      });
-    }
-  });
+  // Überprüfen, ob das Event bereits hinzugefügt wurde
+  let eventExist = eventsArr.some((event) => 
+    event.day === activeDay &&
+    event.month === month + 1 &&
+    event.year === year &&
+    event.events.some(e => e.title === eventTitle)
+  );
+
   if (eventExist) {
-    alert("Event already added");
+    alert("Event ist bereits hinzugefügt.");
     return;
   }
+
+  // Neues Event-Objekt erstellen
   const newEvent = {
     title: eventTitle,
-    time: timeFrom + " - " + timeTo,
+    time: `${timeFrom} - ${timeTo}`,
   };
-  console.log(newEvent);
-  console.log(activeDay);
-  let eventAdded = false;
-  if (eventsArr.length > 0) {
-    eventsArr.forEach((item) => {
-      if (
-        item.day === activeDay &&
-        item.month === month + 1 &&
-        item.year === year
-      ) {
-        item.events.push(newEvent);
-        eventAdded = true;
+
+  // Firestore Event-Objekt erstellen
+  const newFireBaseEvent = {
+    title: eventTitle,
+    startTime: eventTimeFrom,
+    endTime: eventTimeTo,
+    date: firebase.firestore.Timestamp.fromDate(new Date(year, month, activeDay)),
+    userId: user.uid
+  };
+
+  // Event zu Firestore hinzufügen und bei Erfolg die lokale Liste aktualisieren
+  db.collection('events').add(newFireBaseEvent)
+    .then((docRef) => {
+      console.log("Event erfolgreich hinzugefügt mit ID: ", docRef.id);
+
+      // Das Event-Objekt für die lokale Liste um die Firestore ID ergänzen
+      const newEventWithId = { ...newEvent, id: docRef.id };
+
+      // Das neue Event zur lokalen Liste hinzufügen
+      eventsArr.push({
+        day: activeDay,
+        month: month + 1,
+        year: year,
+        events: [newEventWithId],
+      });
+
+      // Die Events im Kalender aktualisieren
+      updateEvents(activeDay);
+      const activeDayEl = document.querySelector(".day.active");
+      if (!activeDayEl.classList.contains("event")) {
+        activeDayEl.classList.add("event");
       }
-    });
-  }
 
-  if (!eventAdded) {
-    eventsArr.push({
-      day: activeDay,
-      month: month + 1,
-      year: year,
-      events: [newEvent],
+      // Formular zurücksetzen
+      addEventWrapper.classList.remove("active");
+      addEventTitle.value = "";
+      addEventFrom.value = "";
+      addEventTo.value = "";
+    })
+    .catch(error => {
+      console.error("Fehler beim Hinzufügen des Events: ", error);
     });
-  }
-
-  console.log(eventsArr);
-  addEventWrapper.classList.remove("active");
-  addEventTitle.value = "";
-  addEventFrom.value = "";
-  addEventTo.value = "";
-  updateEvents(activeDay);
-  //select active day and add event class if not added
-  const activeDayEl = document.querySelector(".day.active");
-  if (!activeDayEl.classList.contains("event")) {
-    activeDayEl.classList.add("event");
-  }
 });
 
 //function to delete event when clicked on event
