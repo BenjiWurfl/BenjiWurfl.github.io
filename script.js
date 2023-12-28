@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
   
 const firebaseConfig = {
   apiKey: "AIzaSyBe7d9bllq8RnmI6xxEBk3oub3qogPT2aM",
@@ -16,6 +16,46 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+// Funktion zum Laden der Ereignisse des Benutzers aus Firestore
+function loadUserEvents() {
+  const user = auth.currentUser;
+  if (user) {
+    db.collection("users").doc(user.uid).collection("events")
+      .get()
+      .then((querySnapshot) => {
+        eventsArr.length = 0; // Leeren Sie das Array, bevor Sie neue Daten hinzufügen
+        querySnapshot.forEach((doc) => {
+          const event = { id: doc.id, ...doc.data() };
+          eventsArr.push(event);
+        });
+        updateCalendarWithEvents(); // Funktion, um den Kalender mit den neuen Events zu aktualisieren
+      })
+      .catch((error) => {
+        console.error("Error loading events: ", error);
+      });
+  } else {
+    console.log("User not logged in, cannot load events.");
+  }
+}
+
+function redirectToLogin() {
+  window.location.href = 'https://benjiwurfl.github.io/Login/';
+}
+
+// Authentifizierungsstatus beibehalten
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // Der Benutzer ist angemeldet und `user.uid` ist verfügbar.
+    console.log("User is signed in with UID:", user.uid);
+    // Hier können Sie Funktionen aufrufen, die die UID verwenden.
+    loadUserEvents();
+  } else {
+    // Kein Benutzer ist angemeldet.
+    console.log("No user is signed in.");
+    redirectToLogin();
+  }
+});
 
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
@@ -57,7 +97,6 @@ const months = [
 ];
 
 const eventsArr = [];
-getEvents();
 console.log(eventsArr);
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
@@ -117,6 +156,7 @@ function initCalendar() {
   }
   daysContainer.innerHTML = days;
   addListner();
+  loadUserEvents();
 }
 
 //function to add month and year on prev and next button
@@ -238,35 +278,35 @@ function getActiveDay(date) {
   eventDate.innerHTML = date + " " + months[month] + " " + year;
 }
 
-//function update events when a day is active
-function updateEvents(date) {
+function updateEvents(selectedDay) {
   let events = "";
-  eventsArr.forEach((event) => {
+  eventsArr.forEach((eventObj) => {
     if (
-      date === event.day &&
-      month + 1 === event.month &&
-      year === event.year
+      selectedDay === eventObj.day &&
+      month + 1 === eventObj.month &&
+      year === eventObj.year
     ) {
-      event.events.forEach((event) => {
+      eventObj.events.forEach((event) => {
         events += `<div class="event">
             <div class="title">
               <i class="fas fa-circle"></i>
               <h3 class="event-title">${event.title}</h3>
             </div>
             <div class="event-time">
-              <span class="event-time">${event.time}</span>
+              <span class="event-time">${event.timeFrom} - ${event.timeTo}</span>
             </div>
         </div>`;
       });
     }
   });
+
   if (events === "") {
     events = `<div class="no-event">
             <h3>No Events</h3>
         </div>`;
   }
+
   eventsContainer.innerHTML = events;
-  saveEvents();
 }
 
 //function to add event
@@ -320,122 +360,120 @@ addEventSubmit.addEventListener("click", () => {
     return;
   }
 
-  //check correct time format 24 hour
-  const timeFromArr = eventTimeFrom.split(":");
-  const timeToArr = eventTimeTo.split(":");
-  if (
-    timeFromArr.length !== 2 ||
-    timeToArr.length !== 2 ||
-    timeFromArr[0] > 23 ||
-    timeFromArr[1] > 59 ||
-    timeToArr[0] > 23 ||
-    timeToArr[1] > 59
-  ) {
-    alert("Invalid Time Format");
-    return;
-  }
+  // Überprüfen des Zeitformats und andere Validierungen...
 
-  const timeFrom = convertTime(eventTimeFrom);
-  const timeTo = convertTime(eventTimeTo);
-
-  //check if event is already added
-  let eventExist = false;
-  eventsArr.forEach((event) => {
-    if (
-      event.day === activeDay &&
-      event.month === month + 1 &&
-      event.year === year
-    ) {
-      event.events.forEach((event) => {
-        if (event.title === eventTitle) {
-          eventExist = true;
-        }
-      });
-    }
-  });
-  if (eventExist) {
-    alert("Event already added");
-    return;
-  }
   const newEvent = {
     title: eventTitle,
-    time: timeFrom + " - " + timeTo,
+    timeFrom: eventTimeFrom,
+    timeTo: eventTimeTo,
+    day: activeDay,
+    month: month + 1,
+    year: year,
+    date: new Date(year, month, activeDay) // Datum des Events
   };
-  console.log(newEvent);
-  console.log(activeDay);
-  let eventAdded = false;
-  if (eventsArr.length > 0) {
-    eventsArr.forEach((item) => {
-      if (
-        item.day === activeDay &&
-        item.month === month + 1 &&
-        item.year === year
-      ) {
-        item.events.push(newEvent);
-        eventAdded = true;
+
+  addEventToFirestore(newEvent);
+});
+
+function addEventToFirestore(newEvent) {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("You must be logged in to add events.");
+    return;
+  }
+
+  db.collection("users").doc(user.uid).collection("events").add(newEvent)
+    .then(docRef => {
+      console.log("Event added with ID: ", docRef.id);
+      newEvent.id = docRef.id; // Fügen Sie die ID zum Event hinzu
+      eventsArr.push(newEvent); // Fügen Sie das Event zum Array hinzu
+      updateEvents(activeDay); // Aktualisieren Sie den Kalender
+      //select active day and add event class if not added
+      const activeDayEl = document.querySelector(".day.active");
+      if (!activeDayEl.classList.contains("event")) {
+        activeDayEl.classList.add("event");
       }
+    })
+    .catch(error => {
+      console.error("Error adding event: ", error);
     });
-  }
 
-  if (!eventAdded) {
-    eventsArr.push({
-      day: activeDay,
-      month: month + 1,
-      year: year,
-      events: [newEvent],
-    });
-  }
-
-  console.log(eventsArr);
   addEventWrapper.classList.remove("active");
   addEventTitle.value = "";
   addEventFrom.value = "";
   addEventTo.value = "";
-  updateEvents(activeDay);
-  //select active day and add event class if not added
-  const activeDayEl = document.querySelector(".day.active");
-  if (!activeDayEl.classList.contains("event")) {
-    activeDayEl.classList.add("event");
-  }
-});
+}
 
 //function to delete event when clicked on event
 eventsContainer.addEventListener("click", (e) => {
   if (e.target.classList.contains("event")) {
     if (confirm("Are you sure you want to delete this event?")) {
-      const eventTitle = e.target.children[0].children[1].innerHTML;
-      eventsArr.forEach((event) => {
-        if (
-          event.day === activeDay &&
-          event.month === month + 1 &&
-          event.year === year
-        ) {
-          event.events.forEach((item, index) => {
-            if (item.title === eventTitle) {
-              event.events.splice(index, 1);
-            }
-          });
-          //if no events left in a day then remove that day from eventsArr
-          if (event.events.length === 0) {
-            eventsArr.splice(eventsArr.indexOf(event), 1);
-            //remove event class from day
-            const activeDayEl = document.querySelector(".day.active");
-            if (activeDayEl.classList.contains("event")) {
-              activeDayEl.classList.remove("event");
-            }
-          }
+      const eventElement = e.target.closest(".event");
+      const eventTitle = eventElement.querySelector(".event-title").innerHTML;
+
+      // Finden des Event-Objekts im Array
+      const eventObj = eventsArr.find(event => 
+        event.day === activeDay &&
+        event.month === month + 1 &&
+        event.year === year &&
+        event.events.some(item => item.title === eventTitle)
+      );
+
+      if (eventObj) {
+        const eventToDelete = eventObj.events.find(item => item.title === eventTitle);
+        if (eventToDelete && eventToDelete.id) {
+          deleteEventFromFirestore(eventObj.id, eventToDelete.id);
         }
-      });
-      updateEvents(activeDay);
+      }
     }
   }
 });
 
+function deleteEventFromFirestore(eventObjId, eventId) {
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("User not logged in, cannot delete event.");
+    return;
+  }
+
+  db.collection("users").doc(user.uid).collection("events").doc(eventId)
+    .delete()
+    .then(() => {
+      console.log("Event successfully deleted!");
+      removeEventFromLocalArray(eventObjId, eventId); // Entfernen Sie das Event aus Ihrem lokalen Array
+      updateEvents(activeDay); // Aktualisieren Sie den Kalender
+    })
+    .catch(error => {
+      console.error("Error removing event: ", error);
+    });
+}
+
+function removeEventFromLocalArray(eventObjId, eventId) {
+  const eventObjIndex = eventsArr.findIndex(event => event.id === eventObjId);
+  if (eventObjIndex > -1) {
+    const eventIndex = eventsArr[eventObjIndex].events.findIndex(event => event.id === eventId);
+    if (eventIndex > -1) {
+      eventsArr[eventObjIndex].events.splice(eventIndex, 1);
+      // Wenn keine Events mehr für diesen Tag vorhanden sind, entfernen Sie das Event-Objekt
+      if (eventsArr[eventObjIndex].events.length === 0) {
+        eventsArr.splice(eventObjIndex, 1);
+        const activeDayEl = document.querySelector(".day.active");
+        if (activeDayEl.classList.contains("event")) {
+          activeDayEl.classList.remove("event");
+        }
+      }
+    }
+  }
+}
+
+/*
 //function to save events in local storage
 function saveEvents() {
   localStorage.setItem("events", JSON.stringify(eventsArr));
 }
+*/
 
+/*
 //function to get events from local storage
 function getEvents() {
   //check if events are already saved in local storage then return event else nothing
@@ -444,7 +482,9 @@ function getEvents() {
   }
   eventsArr.push(...JSON.parse(localStorage.getItem("events")));
 }
+*/
 
+/*
 function convertTime(time) {
   //convert time to 24 hour format
   let timeArr = time.split(":");
@@ -455,3 +495,4 @@ function convertTime(time) {
   time = timeHour + ":" + timeMin + " " + timeFormat;
   return time;
 }
+*/
