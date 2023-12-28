@@ -15,6 +15,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+console.log(db)
 const auth = getAuth(app);
 
 // Funktion zum Laden der Ereignisse des Benutzers aus Firestore
