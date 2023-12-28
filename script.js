@@ -1,6 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
   
 const firebaseConfig = {
@@ -18,6 +17,18 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+function markEventsOnCalendar() {
+  // Gehe durch alle Tage im Kalender und prüfe, ob es für diesen Tag ein Event gibt
+  document.querySelectorAll('.day').forEach(dayEl => {
+    const day = Number(dayEl.textContent);
+    const eventForDayExists = eventsArr.some(eventObj => eventObj.day === day && eventObj.month === month + 1 && eventObj.year === year);
+    if (eventForDayExists) {
+      // Füge die Klasse 'event' hinzu, um den Tag visuell zu markieren
+      dayEl.classList.add('event');
+    }
+  });
+}
+
 // Funktion zum Laden der Ereignisse des Benutzers aus Firestore
 function loadUserEvents() {
   const user = auth.currentUser;
@@ -32,6 +43,7 @@ function loadUserEvents() {
       if (activeDay) {
         updateEvents(activeDay); // Aktualisieren Sie den Kalender für den aktiven Tag
       }
+      markEventsOnCalendar(); // Neu hinzugefügt - Markieren Sie Tage mit Events nach dem Laden
     }).catch(error => {
       console.error("Error loading events: ", error);
     });
