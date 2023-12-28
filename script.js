@@ -279,15 +279,21 @@ function getActiveDay(date) {
 }
 
 function updateEvents(selectedDay) {
+  console.log('Aktualisiere Ereignisse für ausgewählten Tag:', selectedDay);
   let events = "";
+  console.log('eventsArr:', eventsArr);
+  
   eventsArr.forEach((eventObj) => {
+    console.log('Prüfe eventObj:', eventObj);
+    
     if (
       selectedDay === eventObj.day &&
       month + 1 === eventObj.month &&
       year === eventObj.year
     ) {
-      // Überprüfen, ob eventObj.events existiert und ein Array ist
-      if (Array.isArray(eventObj.events)) { //is nd do oida
+      console.log('Ereignis gefunden für Tag:', eventObj);
+      
+      if (Array.isArray(eventObj.events)) {
         eventObj.events.forEach((event) => {
           events += `<div class="event">
               <div class="title">
@@ -299,6 +305,8 @@ function updateEvents(selectedDay) {
               </div>
           </div>`;
         });
+      } else {
+        console.log('eventObj.events ist kein Array:', eventObj.events);
       }
     }
   });
