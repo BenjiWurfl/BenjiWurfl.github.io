@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
   
 const firebaseConfig = {
@@ -20,23 +20,23 @@ const auth = getAuth(app);
 // Funktion zum Laden der Ereignisse des Benutzers aus Firestore
 function loadUserEvents() {
   const user = auth.currentUser;
-  console.log(user);
   if (user) {
-    db.collection("users").doc(user.uid).collection("events")
-      .get()
-      .then((querySnapshot) => {
-        eventsArr.length = 0; // Leeren Sie das Array, bevor Sie neue Daten hinzufügen
-        querySnapshot.forEach((doc) => {
-          const event = { id: doc.id, ...doc.data() };
-          eventsArr.push(event);
-        });
-        updateCalendarWithEvents(); // Funktion, um den Kalender mit den neuen Events zu aktualisieren
-      })
-      .catch((error) => {
-        console.error("Error loading events: ", error);
+    // Erstellen Sie eine Referenz zur Subkollektion "events" des aktuellen Benutzers
+    const eventsRef = collection(db, "users", user.uid, "events");
+
+    // Abrufen der Dokumente aus der Subkollektion
+    getDocs(eventsRef).then(querySnapshot => {
+      eventsArr.length = 0; // Leeren Sie das Array, bevor Sie neue Daten hinzufügen
+      querySnapshot.forEach(doc => {
+        const event = { id: doc.id, ...doc.data() };
+        eventsArr.push(event);
       });
+      updateCalendarWithEvents(); // Aktualisieren Sie den Kalender mit den neuen Events
+    }).catch(error => {
+      console.error("Error loading events: ", error);
+    });
   } else {
-    console.log("User not logged in, cannot load events.");
+    console.log("No user is logged in, cannot load events.");
   }
 }
 
