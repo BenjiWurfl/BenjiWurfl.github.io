@@ -287,7 +287,7 @@ function updateEvents(selectedDay) {
       year === eventObj.year
     ) {
       // Überprüfen, ob eventObj.events existiert und ein Array ist
-      if (Array.isArray(eventObj.events)) {
+      if (Array.isArray(eventObj.events)) { //is nd do oida
         eventObj.events.forEach((event) => {
           events += `<div class="event">
               <div class="title">
