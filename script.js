@@ -286,24 +286,27 @@ function updateEvents(selectedDay) {
       month + 1 === eventObj.month &&
       year === eventObj.year
     ) {
-      eventObj.events.forEach((event) => {
-        events += `<div class="event">
-            <div class="title">
-              <i class="fas fa-circle"></i>
-              <h3 class="event-title">${event.title}</h3>
-            </div>
-            <div class="event-time">
-              <span class="event-time">${event.timeFrom} - ${event.timeTo}</span>
-            </div>
-        </div>`;
-      });
+      // Überprüfen, ob eventObj.events existiert und ein Array ist
+      if (Array.isArray(eventObj.events)) {
+        eventObj.events.forEach((event) => {
+          events += `<div class="event">
+              <div class="title">
+                <i class="fas fa-circle"></i>
+                <h3 class="event-title">${event.title}</h3>
+              </div>
+              <div class="event-time">
+                <span class="event-time">${event.timeFrom} - ${event.timeTo}</span>
+              </div>
+          </div>`;
+        });
+      }
     }
   });
 
   if (events === "") {
     events = `<div class="no-event">
-            <h3>No Events</h3>
-        </div>`;
+              <h3>No Events</h3>
+          </div>`;
   }
 
   eventsContainer.innerHTML = events;
