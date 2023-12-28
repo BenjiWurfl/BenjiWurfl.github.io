@@ -21,17 +21,16 @@ const auth = getAuth(app);
 function loadUserEvents() {
   const user = auth.currentUser;
   if (user) {
-    // Erstellen Sie eine Referenz zur Subkollektion "events" des aktuellen Benutzers
     const eventsRef = collection(db, "users", user.uid, "events");
-
-    // Abrufen der Dokumente aus der Subkollektion
     getDocs(eventsRef).then(querySnapshot => {
-      eventsArr.length = 0; // Leeren Sie das Array, bevor Sie neue Daten hinzufügen
+      eventsArr.length = 0;
       querySnapshot.forEach(doc => {
         const event = { id: doc.id, ...doc.data() };
         eventsArr.push(event);
       });
-      updateCalendarWithEvents(); // Aktualisieren Sie den Kalender mit den neuen Events
+      if (activeDay) {
+        updateEvents(activeDay); // Aktualisieren Sie den Kalender für den aktiven Tag
+      }
     }).catch(error => {
       console.error("Error loading events: ", error);
     });
