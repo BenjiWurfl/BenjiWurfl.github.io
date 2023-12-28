@@ -279,42 +279,27 @@ function getActiveDay(date) {
 }
 
 function updateEvents(selectedDay) {
-  console.log('Aktualisiere Ereignisse für ausgewählten Tag:', selectedDay);
   let events = "";
-  console.log('eventsArr:', eventsArr);
-  
   eventsArr.forEach((eventObj) => {
-    console.log('Prüfe eventObj:', eventObj);
-    
-    if (
-      selectedDay === eventObj.day &&
-      month + 1 === eventObj.month &&
-      year === eventObj.year
-    ) {
-      console.log('Ereignis gefunden für Tag:', eventObj);
-      
-      if (Array.isArray(eventObj.events)) {
-        eventObj.events.forEach((event) => {
-          events += `<div class="event">
-              <div class="title">
-                <i class="fas fa-circle"></i>
-                <h3 class="event-title">${event.title}</h3>
-              </div>
-              <div class="event-time">
-                <span class="event-time">${event.timeFrom} - ${event.timeTo}</span>
-              </div>
-          </div>`;
-        });
-      } else {
-        console.log('eventObj.events ist kein Array:', eventObj.events);
-      }
+    // Direkter Zugriff auf die Eigenschaften des eventObj
+    if (selectedDay === eventObj.day &&
+        month + 1 === eventObj.month &&
+        year === eventObj.year) {
+      // Erstellen der Event-Darstellung ohne die Notwendigkeit, ein events-Array zu durchlaufen
+      events += `<div class="event">
+          <div class="title">
+            <i class="fas fa-circle"></i>
+            <h3 class="event-title">${eventObj.title}</h3>
+          </div>
+          <div class="event-time">
+            <span class="event-time">${eventObj.timeFrom} - ${eventObj.timeTo}</span>
+          </div>
+      </div>`;
     }
   });
 
   if (events === "") {
-    events = `<div class="no-event">
-              <h3>No Events</h3>
-          </div>`;
+    events = `<div class="no-event"><h3>No Events</h3></div>`;
   }
 
   eventsContainer.innerHTML = events;
