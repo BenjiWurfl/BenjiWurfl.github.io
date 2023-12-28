@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
   
 const firebaseConfig = {
@@ -382,21 +382,23 @@ function addEventToFirestore(newEvent) {
     return;
   }
 
-  db.collection("users").doc(user.uid).collection("events").add(newEvent)
-    .then(docRef => {
-      console.log("Event added with ID: ", docRef.id);
-      newEvent.id = docRef.id; // Fügen Sie die ID zum Event hinzu
-      eventsArr.push(newEvent); // Fügen Sie das Event zum Array hinzu
-      updateEvents(activeDay); // Aktualisieren Sie den Kalender
-      //select active day and add event class if not added
-      const activeDayEl = document.querySelector(".day.active");
-      if (!activeDayEl.classList.contains("event")) {
-        activeDayEl.classList.add("event");
-      }
-    })
-    .catch(error => {
-      console.error("Error adding event: ", error);
-    });
+  // Erstellen Sie eine Referenz zur "events"-Subkollektion des aktuellen Benutzers
+  const eventsRef = collection(db, "users", user.uid, "events");
+
+  // Fügen Sie das neue Event zur Datenbank hinzu
+  addDoc(eventsRef, newEvent).then(docRef => {
+    console.log("Event added with ID: ", docRef.id);
+    newEvent.id = docRef.id; // Fügen Sie die ID zum Event hinzu
+    eventsArr.push(newEvent); // Fügen Sie das Event zum Array hinzu
+    updateEvents(activeDay); // Aktualisieren Sie den Kalender
+    //select active day and add event class if not added
+    const activeDayEl = document.querySelector(".day.active");
+    if (!activeDayEl.classList.contains("event")) {
+      activeDayEl.classList.add("event");
+    }
+  }).catch(error => {
+    console.error("Error adding event: ", error);
+  });
 
   addEventWrapper.classList.remove("active");
   addEventTitle.value = "";
