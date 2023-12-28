@@ -15,12 +15,12 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-console.log(db);
 const auth = getAuth(app);
 
 // Funktion zum Laden der Ereignisse des Benutzers aus Firestore
 function loadUserEvents() {
   const user = auth.currentUser;
+  console.log(user);
   if (user) {
     db.collection("users").doc(user.uid).collection("events")
       .get()
