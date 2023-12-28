@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
   
 const firebaseConfig = {
@@ -414,54 +414,32 @@ eventsContainer.addEventListener("click", (e) => {
         event.day === activeDay &&
         event.month === month + 1 &&
         event.year === year &&
-        event.events.some(item => item.title === eventTitle)
+        event.title === eventTitle
       );
 
-      if (eventObj) {
-        const eventToDelete = eventObj.events.find(item => item.title === eventTitle);
-        if (eventToDelete && eventToDelete.id) {
-          deleteEventFromFirestore(eventObj.id, eventToDelete.id);
-        }
+      if (eventObj && eventObj.id) {
+        deleteEventFromFirestore(eventObj.id);
       }
     }
   }
 });
 
-function deleteEventFromFirestore(eventObjId, eventId) {
+function deleteEventFromFirestore(eventId) {
   const user = auth.currentUser;
   if (!user) {
     console.log("User not logged in, cannot delete event.");
     return;
   }
 
-  db.collection("users").doc(user.uid).collection("events").doc(eventId)
-    .delete()
+  const eventRef = doc(db, "users", user.uid, "events", eventId);
+  deleteDoc(eventRef)
     .then(() => {
       console.log("Event successfully deleted!");
-      removeEventFromLocalArray(eventObjId, eventId); // Entfernen Sie das Event aus Ihrem lokalen Array
-      updateEvents(activeDay); // Aktualisieren Sie den Kalender
+      loadUserEvents(); // Neu laden der Events, um das lokale Array zu aktualisieren
     })
     .catch(error => {
       console.error("Error removing event: ", error);
     });
-}
-
-function removeEventFromLocalArray(eventObjId, eventId) {
-  const eventObjIndex = eventsArr.findIndex(event => event.id === eventObjId);
-  if (eventObjIndex > -1) {
-    const eventIndex = eventsArr[eventObjIndex].events.findIndex(event => event.id === eventId);
-    if (eventIndex > -1) {
-      eventsArr[eventObjIndex].events.splice(eventIndex, 1);
-      // Wenn keine Events mehr für diesen Tag vorhanden sind, entfernen Sie das Event-Objekt
-      if (eventsArr[eventObjIndex].events.length === 0) {
-        eventsArr.splice(eventObjIndex, 1);
-        const activeDayEl = document.querySelector(".day.active");
-        if (activeDayEl.classList.contains("event")) {
-          activeDayEl.classList.remove("event");
-        }
-      }
-    }
-  }
 }
 
 /*
