@@ -591,14 +591,15 @@
 }
 
 .events .event .title {
-  font-size: 1.2em; /* Größere Schrift für den Titel */
-  margin-bottom: 5px; /* Abstand unter dem Titel */
+  font-size: 1.2em; 
+  margin-bottom: 5px; 
+  font-weight: bold;
 }
 
 .events .event .event-description {
-  font-size: 0.9em; /* Schriftgröße für die Beschreibung */
-  color: #ccc; /* Farbe der Beschreibung */
-  margin-bottom: 5px; /* Abstand unter der Beschreibung */
+  font-size: 0.9em; 
+  color: #ccc; 
+  margin-bottom: 5px; 
 }
 
 .events .event .event-time {
