@@ -455,9 +455,8 @@ function deleteEventFromFirestore(eventId) {
         eventsArr.splice(eventIndex, 1);
       }
 
-      // Neu laden der Events, um das lokale Array zu aktualisieren und den Kalender neuzuzeichnen
-      loadUserEvents(); // Diese Zeile kann entfernt werden, da wir das Array oben bereits aktualisiert haben
-      markEventsOnCalendar(); // Direkt die visuellen Indikatoren aktualisieren
+      // Kalender neu initialisieren, um Änderungen widerzuspiegeln
+      initCalendar();
     })
     .catch(error => {
       console.error("Error removing event: ", error);
