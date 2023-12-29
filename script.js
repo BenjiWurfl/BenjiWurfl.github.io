@@ -91,6 +91,8 @@ const calendar = document.querySelector(".calendar"),
   addEventFrom = document.querySelector(".event-time-from "),
   addEventTo = document.querySelector(".event-time-to "),
   addEventSubmit = document.querySelector(".add-event-btn ");
+  addEventDescription = document.querySelector(".event-description");
+
 
 let today = new Date();
 let activeDay;
@@ -367,23 +369,23 @@ addEventTo.addEventListener("input", (e) => {
 //function to add event to eventsArr
 addEventSubmit.addEventListener("click", () => {
   const eventTitle = addEventTitle.value;
+  const eventDescription = addEventDescription.value;
   const allDay = document.getElementById('allDayEvent').checked;
   let eventTimeFrom = '00:00';
   let eventTimeTo = '23:59';
-  
+
   if (!allDay) {
     eventTimeFrom = addEventFrom.value;
     eventTimeTo = addEventTo.value;
-    if (eventTitle === "" || eventTimeFrom === "" || eventTimeTo === "") {
+    if (eventTitle === "" || eventDescription === "" || eventTimeFrom === "" || eventTimeTo === "") {
       alert("Bitte füllen Sie alle Felder aus, es sei denn, es ist ein ganztägiges Ereignis.");
       return;
     }
   }
 
-  // Überprüfen des Zeitformats und andere Validierungen...
-
   const newEvent = {
     title: eventTitle,
+    description: eventDescription, // Neue Beschreibung hinzufügen
     timeFrom: eventTimeFrom,
     timeTo: eventTimeTo,
     day: activeDay,

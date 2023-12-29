@@ -566,4 +566,16 @@
   /* Hover-Effekt für das Checkbox-Label für bessere Benutzerfreundlichkeit */
   .add-event-body .all-day-checkbox label:hover {
     color: var(--primary-clr); /* Farbe beim Hovern */
-  }  
+  }
+  
+  /* Stil für die Beschreibung (Description) Eingabefeld */
+  .add-event-body .event-description {
+  margin-top: 10px; /* Abstand zwischen dem Event Name und dem Description Feld */
+  }
+
+  /* Anpassungen für kleinere Bildschirme */
+  @media screen and (max-width: 500px) {
+    .add-event-body .event-description {
+      font-size: 0.9rem; /* Anpassung der Schriftgröße auf kleineren Bildschirmen */
+    }
+  }
