@@ -18,6 +18,26 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const eventsArr = [];
 
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+let today = new Date();
+let activeDay;
+let month = today.getMonth();
+let year = today.getFullYear();
+
 function markEventsOnCalendar() {
   // Gehe durch alle Tage im aktuellen Monat im Kalender und prüfe, ob es für diesen Tag ein Event gibt
   document.querySelectorAll('.day:not(.prev-date):not(.next-date)').forEach(dayEl => {
@@ -91,32 +111,9 @@ const calendar = document.querySelector(".calendar"),
   addEventTitle = document.querySelector(".event-name "),
   addEventFrom = document.querySelector(".event-time-from "),
   addEventTo = document.querySelector(".event-time-to "),
+  addEventDescription = document.querySelector(".event-description"),
   addEventSubmit = document.querySelector(".add-event-btn ");
-  addEventDescription = document.querySelector(".event-description");
 
-
-let today = new Date();
-let activeDay;
-let month = today.getMonth();
-let year = today.getFullYear();
-
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-//const eventsArr = [];
-console.log(eventsArr);
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
 function initCalendar() {
