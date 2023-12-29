@@ -603,6 +603,6 @@
 }
 
 .events .event .event-time {
-  font-size: 1em; /* Größere Schrift für die Zeitangabe */
+  font-size: 0.8em;
   color: #ddd; /* Farbe der Zeitangabe */
 }
