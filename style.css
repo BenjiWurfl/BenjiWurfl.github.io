@@ -604,5 +604,6 @@
 
 .events .event .event-time {
   font-size: 0.9em;
-  color: #ddd; /* Farbe der Zeitangabe */
+  color: #ddd;
+  font-weight: 500;
 }
