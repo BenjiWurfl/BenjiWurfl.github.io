@@ -580,7 +580,7 @@
     }
   }
 
-  
+
   /* ... vorhandene Stile ... */
 
 .events .event {
@@ -603,6 +603,7 @@
 }
 
 .events .event .event-time {
-  font-size: 0.8em; /* Kleinere Schrift für die Zeit */
+  font-size: 1em; /* Größere Schrift für die Zeitangabe */
   color: #ddd; /* Farbe der Zeitangabe */
+  font-weight: 500; /* Macht die Schrift ein wenig dicker */
 }
