@@ -80,18 +80,31 @@ function loadUserEvents() {
     getDocs(eventsRef).then(querySnapshot => {
       eventsArr.length = 0;
       querySnapshot.forEach(doc => {
-        const event = { id: doc.id, ...doc.data() };
+        const eventData = doc.data();
+        let eventDate;
+
+        // Überprüfen Sie, ob das Datum als Timestamp gespeichert ist
+        if (eventData.date && eventData.date.seconds) {
+          eventDate = new Date(eventData.date.seconds * 1000);
+        } else if (eventData.date) {
+          // Wenn das Datum im String-Format vorliegt
+          eventDate = new Date(eventData.date);
+        } else {
+          // Standardwert, wenn kein Datum vorhanden ist
+          eventDate = new Date();
+        }
+
+        const event = { id: doc.id, ...eventData, date: eventDate };
         eventsArr.push(event);
       });
+
       if (activeDay) {
-        updateEvents(activeDay); // Aktualisieren Sie den Kalender für den aktiven Tag
+        updateEvents(activeDay);
       }
-      markEventsOnCalendar(); // Neu hinzugefügt - Markieren Sie Tage mit Events nach dem Laden
+      markEventsOnCalendar();
     }).catch(error => {
       console.error("Error loading events: ", error);
     });
-  } else {
-    console.log("No user is logged in, cannot load events.");
   }
 }
 
