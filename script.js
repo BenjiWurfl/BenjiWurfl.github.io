@@ -38,29 +38,19 @@ let activeDay;
 let month = today.getMonth();
 let year = today.getFullYear();
 
-// Funktion, um die Erlaubnis für Benachrichtigungen zu fragen
-function requestNotificationPermission() {
-  Notification.requestPermission().then(permission => {
-    if (permission === "granted") {
-      console.log("Notification permission granted.");
+// Funktion, um zu überprüfen, ob ein Event jetzt beginnt und eine Benachrichtigung anzuzeigen
+function checkForUpcomingEvents() {
+  const currentTime = new Date();
+  eventsArr.forEach(eventObj => {
+    const eventTime = new Date(eventObj.date.seconds * 1000); // Stellen Sie sicher, dass eventObj.date das richtige Format hat
+    if (eventTime.getTime() <= currentTime.getTime() && eventTime.getTime() > currentTime.getTime() - 60000) { // Wenn das Event in der letzten Minute begonnen hat
+      alert(`Ihr Event "${eventObj.title}" hat begonnen!`);
     }
   });
 }
 
-// Funktion, um eine Benachrichtigung zu einem bestimmten Zeitpunkt zu planen
-function scheduleNotification(eventObj) {
-  const eventTime = new Date(eventObj.date.seconds * 1000); // Angenommen eventObj.date ist ein Timestamp
-  const currentTime = new Date();
-  const delay = eventTime.getTime() - currentTime.getTime();
-
-  if (delay > 0) {
-    setTimeout(() => {
-      new Notification(`Ihr Event "${eventObj.title}" beginnt jetzt!`);
-    }, delay);
-  }
-}
-
-requestNotificationPermission();
+// Interval setzen, um regelmäßig zu überprüfen
+setInterval(checkForUpcomingEvents, 60000); // Überprüft jede Minute
 
 function markEventsOnCalendar() {
   // Gehe durch alle Tage im aktuellen Monat im Kalender und prüfe, ob es für diesen Tag ein Event gibt
@@ -87,12 +77,11 @@ function loadUserEvents() {
       querySnapshot.forEach(doc => {
         const event = { id: doc.id, ...doc.data() };
         eventsArr.push(event);
-        scheduleNotification(event); // Planen der Benachrichtigung für jedes Event
       });
       if (activeDay) {
-        updateEvents(activeDay);
+        updateEvents(activeDay); // Aktualisieren Sie den Kalender für den aktiven Tag
       }
-      markEventsOnCalendar();
+      markEventsOnCalendar(); // Neu hinzugefügt - Markieren Sie Tage mit Events nach dem Laden
     }).catch(error => {
       console.error("Error loading events: ", error);
     });
