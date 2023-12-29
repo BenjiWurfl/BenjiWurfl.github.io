@@ -38,6 +38,30 @@ let activeDay;
 let month = today.getMonth();
 let year = today.getFullYear();
 
+// Funktion, um die Erlaubnis für Benachrichtigungen zu fragen
+function requestNotificationPermission() {
+  Notification.requestPermission().then(permission => {
+    if (permission === "granted") {
+      console.log("Notification permission granted.");
+    }
+  });
+}
+
+// Funktion, um eine Benachrichtigung zu einem bestimmten Zeitpunkt zu planen
+function scheduleNotification(eventObj) {
+  const eventTime = new Date(eventObj.date.seconds * 1000); // Angenommen eventObj.date ist ein Timestamp
+  const currentTime = new Date();
+  const delay = eventTime.getTime() - currentTime.getTime();
+
+  if (delay > 0) {
+    setTimeout(() => {
+      new Notification(`Ihr Event "${eventObj.title}" beginnt jetzt!`);
+    }, delay);
+  }
+}
+
+requestNotificationPermission();
+
 function markEventsOnCalendar() {
   // Gehe durch alle Tage im aktuellen Monat im Kalender und prüfe, ob es für diesen Tag ein Event gibt
   document.querySelectorAll('.day:not(.prev-date):not(.next-date)').forEach(dayEl => {
@@ -63,11 +87,12 @@ function loadUserEvents() {
       querySnapshot.forEach(doc => {
         const event = { id: doc.id, ...doc.data() };
         eventsArr.push(event);
+        scheduleNotification(event); // Planen der Benachrichtigung für jedes Event
       });
       if (activeDay) {
-        updateEvents(activeDay); // Aktualisieren Sie den Kalender für den aktiven Tag
+        updateEvents(activeDay);
       }
-      markEventsOnCalendar(); // Neu hinzugefügt - Markieren Sie Tage mit Events nach dem Laden
+      markEventsOnCalendar();
     }).catch(error => {
       console.error("Error loading events: ", error);
     });
@@ -113,7 +138,6 @@ const calendar = document.querySelector(".calendar"),
   addEventTo = document.querySelector(".event-time-to "),
   addEventDescription = document.querySelector(".event-description"),
   addEventSubmit = document.querySelector(".add-event-btn ");
-
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
 function initCalendar() {
