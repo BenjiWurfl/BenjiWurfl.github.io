@@ -422,6 +422,7 @@ function addEventToFirestore(newEvent) {
 
   addEventWrapper.classList.remove("active");
   addEventTitle.value = "";
+  addEventDescription.value = "";
   addEventFrom.value = "";
   addEventTo.value = "";
 }
