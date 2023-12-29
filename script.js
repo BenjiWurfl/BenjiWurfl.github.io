@@ -18,13 +18,16 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 function markEventsOnCalendar() {
-  // Gehe durch alle Tage im Kalender und prüfe, ob es für diesen Tag ein Event gibt
-  document.querySelectorAll('.day').forEach(dayEl => {
+  // Gehe durch alle Tage im aktuellen Monat im Kalender und prüfe, ob es für diesen Tag ein Event gibt
+  document.querySelectorAll('.day:not(.prev-date):not(.next-date)').forEach(dayEl => {
     const day = Number(dayEl.textContent);
     const eventForDayExists = eventsArr.some(eventObj => eventObj.day === day && eventObj.month === month + 1 && eventObj.year === year);
     if (eventForDayExists) {
       // Füge die Klasse 'event' hinzu, um den Tag visuell zu markieren
       dayEl.classList.add('event');
+    } else {
+      // Entferne die Klasse 'event', falls keine Events vorhanden sind
+      dayEl.classList.remove('event');
     }
   });
 }
@@ -170,6 +173,7 @@ function initCalendar() {
   daysContainer.innerHTML = days;
   addListner();
   loadUserEvents();
+  markEventsOnCalendar();
 }
 
 //function to add month and year on prev and next button
@@ -180,6 +184,7 @@ function prevMonth() {
     year--;
   }
   initCalendar();
+  markEventsOnCalendar();
 }
 
 function nextMonth() {
@@ -189,6 +194,7 @@ function nextMonth() {
     year++;
   }
   initCalendar();
+  markEventsOnCalendar();
 }
 
 prev.addEventListener("click", prevMonth);
@@ -282,6 +288,7 @@ function gotoDate() {
     }
   }
   alert("Invalid Date");
+  markEventsOnCalendar();
 }
 
 //function get active day day name and date and update eventday eventdate
@@ -462,4 +469,5 @@ function deleteEventFromFirestore(eventId) {
     .catch(error => {
       console.error("Error removing event: ", error);
     });
+    markEventsOnCalendar();
 }
