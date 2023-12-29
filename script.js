@@ -269,14 +269,15 @@ dateInput.addEventListener("input", (e) => {
 
 gotoBtn.addEventListener("click", gotoDate);
 
+// Funktion, um zu einem bestimmten Datum zu navigieren
 function gotoDate() {
-  console.log("here");
   const dateArr = dateInput.value.split("/");
   if (dateArr.length === 2) {
     if (dateArr[0] > 0 && dateArr[0] < 13 && dateArr[1].length === 4) {
       month = dateArr[0] - 1;
-      year = dateArr[1];
-      initCalendar();
+      year = Number(dateArr[1]);
+      initCalendar(); // Initialisiert den Kalender neu mit dem neuen Monat und Jahr
+      loadUserEvents(); // Lädt die Ereignisse für den neuen Monat und das neue Jahr
       return;
     }
   }
@@ -455,7 +456,7 @@ function deleteEventFromFirestore(eventId) {
         eventsArr.splice(eventIndex, 1);
       }
 
-      // Kalender neu initialisieren, um Änderungen widerzuspiegeln
+      // Kalender neu initialisieren, um Änderungen widerzuspiegeln (Balken unter Datum)
       initCalendar();
     })
     .catch(error => {
