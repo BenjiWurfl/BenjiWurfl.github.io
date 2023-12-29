@@ -302,19 +302,16 @@ function getActiveDay(date) {
 function updateEvents(selectedDay) {
   let events = "";
   eventsArr.forEach((eventObj) => {
-    // Direkter Zugriff auf die Eigenschaften des eventObj
-    if (selectedDay === eventObj.day &&
-        month + 1 === eventObj.month &&
-        year === eventObj.year) {
-      // Erstellen der Event-Darstellung ohne die Notwendigkeit, ein events-Array zu durchlaufen
+    if (selectedDay === eventObj.day && month + 1 === eventObj.month && year === eventObj.year) {
+      let eventTimeText = eventObj.allDay ? "Ganztägig" : `${eventObj.timeFrom} - ${eventObj.timeTo}`;
       events += `<div class="event">
-          <div class="title">
-            <i class="fas fa-circle"></i>
-            <h3 class="event-title">${eventObj.title}</h3>
-          </div>
-          <div class="event-time">
-            <span class="event-time">${eventObj.timeFrom} - ${eventObj.timeTo}</span>
-          </div>
+        <div class="title">
+          <i class="fas fa-circle"></i>
+          <h3 class="event-title">${eventObj.title}</h3>
+        </div>
+        <div class="event-time">
+          <span class="event-time">${eventTimeText}</span>
+        </div>
       </div>`;
     }
   });
@@ -370,11 +367,17 @@ addEventTo.addEventListener("input", (e) => {
 //function to add event to eventsArr
 addEventSubmit.addEventListener("click", () => {
   const eventTitle = addEventTitle.value;
-  const eventTimeFrom = addEventFrom.value;
-  const eventTimeTo = addEventTo.value;
-  if (eventTitle === "" || eventTimeFrom === "" || eventTimeTo === "") {
-    alert("Please fill all the fields");
-    return;
+  const allDay = document.getElementById('allDayEvent').checked;
+  let eventTimeFrom = '00:00';
+  let eventTimeTo = '23:59';
+  
+  if (!allDay) {
+    eventTimeFrom = addEventFrom.value;
+    eventTimeTo = addEventTo.value;
+    if (eventTitle === "" || eventTimeFrom === "" || eventTimeTo === "") {
+      alert("Bitte füllen Sie alle Felder aus, es sei denn, es ist ein ganztägiges Ereignis.");
+      return;
+    }
   }
 
   // Überprüfen des Zeitformats und andere Validierungen...

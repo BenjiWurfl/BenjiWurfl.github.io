@@ -536,3 +536,34 @@
       padding: 20px;
     }
   }
+  .add-event-body .all-day-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 10px; /* Abstand von den Zeit-Eingabefeldern */
+  }
+  
+  .add-event-body .all-day-checkbox label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #373c4f; /* Farbe des Textes anpassen, falls nötig */
+  }
+  
+  .add-event-body .all-day-checkbox input[type="checkbox"] {
+    margin-right: 10px; /* Abstand zwischen Checkbox und Label */
+    cursor: pointer;
+  }
+  
+  /* Style für die Checkbox, um es ähnlich wie andere Eingabefelder aussehen zu lassen */
+  .add-event-body .all-day-checkbox input[type="checkbox"] {
+    accent-color: var(--primary-clr); /* Farbe der Checkbox */
+    width: 16px; /* Größe der Checkbox */
+    height: 16px;
+  }
+  
+  /* Hover-Effekt für das Checkbox-Label für bessere Benutzerfreundlichkeit */
+  .add-event-body .all-day-checkbox label:hover {
+    color: var(--primary-clr); /* Farbe beim Hovern */
+  }  
