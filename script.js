@@ -448,40 +448,18 @@ function deleteEventFromFirestore(eventId) {
   deleteDoc(eventRef)
     .then(() => {
       console.log("Event successfully deleted!");
-      loadUserEvents(); // Neu laden der Events, um das lokale Array zu aktualisieren
+
+      // Entfernen Sie das Event aus dem lokalen Array
+      const eventIndex = eventsArr.findIndex(event => event.id === eventId);
+      if (eventIndex !== -1) {
+        eventsArr.splice(eventIndex, 1);
+      }
+
+      // Neu laden der Events, um das lokale Array zu aktualisieren und den Kalender neuzuzeichnen
+      loadUserEvents(); // Diese Zeile kann entfernt werden, da wir das Array oben bereits aktualisiert haben
+      markEventsOnCalendar(); // Direkt die visuellen Indikatoren aktualisieren
     })
     .catch(error => {
       console.error("Error removing event: ", error);
     });
 }
-
-/*
-//function to save events in local storage
-function saveEvents() {
-  localStorage.setItem("events", JSON.stringify(eventsArr));
-}
-*/
-
-/*
-//function to get events from local storage
-function getEvents() {
-  //check if events are already saved in local storage then return event else nothing
-  if (localStorage.getItem("events") === null) {
-    return;
-  }
-  eventsArr.push(...JSON.parse(localStorage.getItem("events")));
-}
-*/
-
-/*
-function convertTime(time) {
-  //convert time to 24 hour format
-  let timeArr = time.split(":");
-  let timeHour = timeArr[0];
-  let timeMin = timeArr[1];
-  let timeFormat = timeHour >= 12 ? "PM" : "AM";
-  timeHour = timeHour % 12 || 12;
-  time = timeHour + ":" + timeMin + " " + timeFormat;
-  return time;
-}
-*/
