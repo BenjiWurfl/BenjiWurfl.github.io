@@ -580,8 +580,7 @@
     }
   }
 
-
-  /* ... vorhandene Stile ... */
+/* Formatierung für die Anzeige der Events */
 
 .events .event {
   margin-bottom: 15px; /* Erhöhter Abstand zwischen den Events */
@@ -605,5 +604,5 @@
 .events .event .event-time {
   font-size: 0.9em;
   color: #ddd;
-  font-weight: 500;
+  font-weight: bold;
 }
