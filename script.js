@@ -429,12 +429,12 @@ function addEventToFirestore(newEvent) {
   addEventTo.value = "";
 }
 
-//function to delete event when clicked on event
+//function to delete event when clicked inside the events container
 eventsContainer.addEventListener("click", (e) => {
-  if (e.target.classList.contains("event")) {
+  const eventElement = e.target.closest(".event"); // Findet das nächste übergeordnete Element mit der Klasse `event`
+  if (eventElement) { // Prüft, ob ein solches Element gefunden wurde
     if (confirm("Are you sure you want to delete this event?")) {
-      const eventElement = e.target.closest(".event");
-      const eventTitle = eventElement.querySelector(".event-title").innerHTML;
+      const eventTitle = eventElement.querySelector(".event-title").textContent; // Zugriff auf den Titel
 
       // Finden des Event-Objekts im Array
       const eventObj = eventsArr.find(event => 
