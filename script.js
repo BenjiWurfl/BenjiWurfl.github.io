@@ -304,11 +304,13 @@ function updateEvents(selectedDay) {
   eventsArr.forEach((eventObj) => {
     if (selectedDay === eventObj.day && month + 1 === eventObj.month && year === eventObj.year) {
       let eventTimeText = eventObj.allDay ? "Ganztägig" : `${eventObj.timeFrom} - ${eventObj.timeTo}`;
+      let eventDescriptionText = eventObj.description ? `<div class="event-description">${eventObj.description}</div>` : "";
       events += `<div class="event">
         <div class="title">
           <i class="fas fa-circle"></i>
           <h3 class="event-title">${eventObj.title}</h3>
         </div>
+        ${eventDescriptionText} 
         <div class="event-time">
           <span class="event-time">${eventTimeText}</span>
         </div>
