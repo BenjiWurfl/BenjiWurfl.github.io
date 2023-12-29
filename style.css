@@ -579,3 +579,30 @@
       font-size: 0.9rem; /* Anpassung der Schriftgröße auf kleineren Bildschirmen */
     }
   }
+
+  
+  /* ... vorhandene Stile ... */
+
+.events .event {
+  margin-bottom: 15px; /* Erhöhter Abstand zwischen den Events */
+  padding: 10px; /* Innenabstand für das Event-Element */
+  background-color: rgba(255, 255, 255, 0.05); /* Leichter Hintergrund für jedes Event */
+  border-left: 3px solid var(--primary-clr); /* Vertikale Linie als visuelle Trennung */
+  border-radius: 5px; /* Abgerundete Ecken für das Event-Element */
+}
+
+.events .event .title {
+  font-size: 1.2em; /* Größere Schrift für den Titel */
+  margin-bottom: 5px; /* Abstand unter dem Titel */
+}
+
+.events .event .event-description {
+  font-size: 0.9em; /* Schriftgröße für die Beschreibung */
+  color: #ccc; /* Farbe der Beschreibung */
+  margin-bottom: 5px; /* Abstand unter der Beschreibung */
+}
+
+.events .event .event-time {
+  font-size: 0.8em; /* Kleinere Schrift für die Zeit */
+  color: #ddd; /* Farbe der Zeitangabe */
+}
