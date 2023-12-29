@@ -16,6 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const eventsArr = [];
 
 function markEventsOnCalendar() {
   // Gehe durch alle Tage im aktuellen Monat im Kalender und prüfe, ob es für diesen Tag ein Event gibt
@@ -114,7 +115,7 @@ const months = [
   "December",
 ];
 
-const eventsArr = [];
+//const eventsArr = [];
 console.log(eventsArr);
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
