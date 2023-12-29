@@ -41,14 +41,20 @@ let year = today.getFullYear();
 // Funktion, um zu überprüfen, ob ein Event jetzt beginnt und eine Benachrichtigung anzuzeigen
 function checkForUpcomingEvents() {
   const currentTime = new Date();
-  console.log("Checking for events at", currentTime);
-
   eventsArr.forEach(eventObj => {
-    let eventTime = new Date(eventObj.date);
-    console.log(`Event: ${eventObj.title}, Scheduled Time: ${eventTime}`);
+    let eventDate;
+    if (eventObj.date.seconds) { // Wenn das Datum im Firestore Timestamp-Format vorliegt
+      eventDate = new Date(eventObj.date.seconds * 1000);
+    } else { // Wenn das Datum als JavaScript-Date-Objekt vorliegt
+      eventDate = new Date(eventObj.date);
+    }
 
+    // Extrahieren der Zeit aus 'timeFrom' und Kombinieren mit dem Datum
+    const timeParts = eventObj.timeFrom.split(':');
+    const eventTime = new Date(eventDate.setHours(timeParts[0], timeParts[1], 0, 0));
+
+    // Überprüfung, ob das Event in der letzten Minute begonnen hat
     if (eventTime <= currentTime && eventTime > new Date(currentTime - 60000)) {
-      console.log(`Event "${eventObj.title}" has started!`);
       alert(`Ihr Event "${eventObj.title}" hat begonnen!`);
     }
   });
