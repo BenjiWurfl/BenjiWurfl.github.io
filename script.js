@@ -42,15 +42,22 @@ let year = today.getFullYear();
 function checkForUpcomingEvents() {
   const currentTime = new Date();
   eventsArr.forEach(eventObj => {
-    const eventTime = new Date(eventObj.date.seconds * 1000); // Stellen Sie sicher, dass eventObj.date das richtige Format hat
-    if (eventTime.getTime() <= currentTime.getTime() && eventTime.getTime() > currentTime.getTime() - 60000) { // Wenn das Event in der letzten Minute begonnen hat
+    let eventTime;
+    if (eventObj.date.seconds) { // Wenn das Datum im Firestore Timestamp-Format vorliegt
+      eventTime = new Date(eventObj.date.seconds * 1000);
+    } else { // Wenn das Datum als JavaScript-Date-Objekt vorliegt
+      eventTime = new Date(eventObj.date);
+    }
+
+    // Überprüfung, ob das Event in der letzten Minute begonnen hat
+    if (eventTime <= currentTime && eventTime > new Date(currentTime - 60000)) {
       alert(`Ihr Event "${eventObj.title}" hat begonnen!`);
     }
   });
 }
 
-// Interval setzen, um regelmäßig zu überprüfen
-setInterval(checkForUpcomingEvents, 60000); // Überprüft jede Minute
+// Aufruf der Funktion mit einem Intervall
+setInterval(checkForUpcomingEvents, 60000);
 
 function markEventsOnCalendar() {
   // Gehe durch alle Tage im aktuellen Monat im Kalender und prüfe, ob es für diesen Tag ein Event gibt
