@@ -114,24 +114,19 @@ function loadUserEvents() {
   }
 }
 
-//Funktion zum öffnen des Edit Fensters
-
-function openEditEventWindow(eventId, event) {
-  event.stopPropagation();
+function openEditEventWindow(eventId) {
   const eventToEdit = eventsArr.find(event => event.id === eventId);
   if (eventToEdit) {
     addEventTitle.value = eventToEdit.title;
     addEventDescription.value = eventToEdit.description;
     addEventFrom.value = eventToEdit.timeFrom;
     addEventTo.value = eventToEdit.timeTo;
-    // Setzen Sie weitere Felder hier
+    // ... Setzen weiterer Felder, falls vorhanden
 
-    addEventWrapper.classList.add("active");
-    addEventSubmit.onclick = () => updateEvent(eventId);
+    addEventWrapper.classList.add("active"); // Öffnet das Fenster
+    addEventSubmit.onclick = () => updateEvent(eventId); // Setzt die Funktion zum Aktualisieren des Events
   }
 }
-
-//UpdateEvent für Edit Fenster
 
 function updateEvent(eventId) {
   const updatedEvent = {
@@ -139,7 +134,7 @@ function updateEvent(eventId) {
     description: addEventDescription.value,
     timeFrom: addEventFrom.value,
     timeTo: addEventTo.value,
-    // Setzen Sie weitere Felder hier
+    // ... weitere Felder
     day: activeDay,
     month: month + 1,
     year: year,
@@ -393,7 +388,7 @@ function updateEvents(selectedDay) {
         <div class="title">
           <i class="fas fa-circle"></i>
           <h3 class="event-title">${eventObj.title}</h3>
-          <button onclick="openEditEventWindow('${eventObj.id}', event)" class="edit-event-btn">Edit</button>
+          <button onclick="event.stopPropagation(); openEditEventWindow('${eventObj.id}')" class="edit-event-btn"><i class="fas fa-edit"></i></button>
         </div>
         ${eventDescriptionText} 
         <div class="event-time">
@@ -561,12 +556,4 @@ function deleteEventFromFirestore(eventId) {
       console.error("Error removing event: ", error);
     });
     markEventsOnCalendar();
-}
-
-function clearEventForm() {
-  addEventTitle.value = "";
-  addEventDescription.value = "";
-  addEventFrom.value = "";
-  addEventTo.value = "";
-  addEventSubmit.onclick = addEventToFirestore;
 }
