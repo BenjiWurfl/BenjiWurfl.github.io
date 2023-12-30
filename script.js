@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
   
 const firebaseConfig = {
@@ -112,6 +112,52 @@ function loadUserEvents() {
       console.error("Error loading events: ", error);
     });
   }
+}
+
+//Funktion zum öffnen des Edit Fensters
+
+function openEditEventWindow(eventId) {
+  const eventToEdit = eventsArr.find(event => event.id === eventId);
+  if (eventToEdit) {
+    addEventTitle.value = eventToEdit.title;
+    addEventDescription.value = eventToEdit.description;
+    addEventFrom.value = eventToEdit.timeFrom;
+    addEventTo.value = eventToEdit.timeTo;
+    // Setzen Sie weitere Felder hier
+
+    addEventWrapper.classList.add("active");
+    addEventSubmit.onclick = () => updateEvent(eventId);
+  }
+}
+
+//UpdateEvent für Edit Fenster
+
+function updateEvent(eventId) {
+  const updatedEvent = {
+    title: addEventTitle.value,
+    description: addEventDescription.value,
+    timeFrom: addEventFrom.value,
+    timeTo: addEventTo.value,
+    // Setzen Sie weitere Felder hier
+    day: activeDay,
+    month: month + 1,
+    year: year,
+    date: new Date(year, month, activeDay)
+  };
+
+  const eventRef = doc(db, "users", auth.currentUser.uid, "events", eventId);
+  updateDoc(eventRef, updatedEvent).then(() => {
+    console.log("Event updated with ID: ", eventId);
+    const eventIndex = eventsArr.findIndex(event => event.id === eventId);
+    if (eventIndex !== -1) {
+      eventsArr[eventIndex] = { id: eventId, ...updatedEvent };
+    }
+    updateEvents(activeDay);
+    addEventWrapper.classList.remove("active");
+    clearEventForm();
+  }).catch(error => {
+    console.error("Error updating event: ", error);
+  });
 }
 
 function redirectToLogin() {
@@ -346,6 +392,7 @@ function updateEvents(selectedDay) {
         <div class="title">
           <i class="fas fa-circle"></i>
           <h3 class="event-title">${eventObj.title}</h3>
+          <button onclick="openEditEventWindow('${eventObj.id}')" class="edit-event-btn">Edit</button>
         </div>
         ${eventDescriptionText} 
         <div class="event-time">
@@ -513,4 +560,12 @@ function deleteEventFromFirestore(eventId) {
       console.error("Error removing event: ", error);
     });
     markEventsOnCalendar();
+}
+
+function clearEventForm() {
+  addEventTitle.value = "";
+  addEventDescription.value = "";
+  addEventFrom.value = "";
+  addEventTo.value = "";
+  addEventSubmit.onclick = addEventToFirestore;
 }
