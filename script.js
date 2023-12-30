@@ -116,7 +116,8 @@ function loadUserEvents() {
 
 //Funktion zum öffnen des Edit Fensters
 
-function openEditEventWindow(eventId) {
+function openEditEventWindow(eventId, event) {
+  event.stopPropagation();
   const eventToEdit = eventsArr.find(event => event.id === eventId);
   if (eventToEdit) {
     addEventTitle.value = eventToEdit.title;
@@ -392,7 +393,7 @@ function updateEvents(selectedDay) {
         <div class="title">
           <i class="fas fa-circle"></i>
           <h3 class="event-title">${eventObj.title}</h3>
-          <button onclick="openEditEventWindow('${eventObj.id}')" class="edit-event-btn">Edit</button>
+          <button onclick="openEditEventWindow('${eventObj.id}', event)" class="edit-event-btn">Edit</button>
         </div>
         ${eventDescriptionText} 
         <div class="event-time">
