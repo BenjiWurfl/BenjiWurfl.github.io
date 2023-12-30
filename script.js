@@ -385,15 +385,13 @@ function updateEvents(selectedDay) {
       let eventTimeText = eventObj.allDay ? "Ganztägig" : `${eventObj.timeFrom} - ${eventObj.timeTo}`;
       let eventDescriptionText = eventObj.description ? `<div class="event-description">${eventObj.description}</div>` : "";
       events += `<div class="event">
-        <div class="title">
+        <div class="event-content">
           <i class="fas fa-circle"></i>
           <h3 class="event-title">${eventObj.title}</h3>
-          <button onclick="event.stopPropagation(); openEditEventWindow('${eventObj.id}')" class="edit-event-btn"><i class="fas fa-edit"></i></button>
+          ${eventDescriptionText}
+          <div class="event-time">${eventTimeText}</div>
         </div>
-        ${eventDescriptionText} 
-        <div class="event-time">
-          <span class="event-time">${eventTimeText}</span>
-        </div>
+        <button onclick="event.stopPropagation(); openEditEventWindow('${eventObj.id}')" class="edit-event-btn"><i class="fas fa-edit"></i></button>
       </div>`;
     }
   });

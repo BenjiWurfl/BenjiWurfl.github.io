@@ -607,3 +607,13 @@
   color: #ddd;
   font-weight: bold;
 }
+
+.event {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.event-content {
+  flex-grow: 1;
+}
