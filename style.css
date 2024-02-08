@@ -608,8 +608,21 @@
 }
 
 .delete-event-btn {
-  background-color: red; /* Rote Farbe für den Löschen-Button */
-  color: white; /* Weiße Textfarbe */
-  border: none; /* Entfernen des Rands */
+  height: 40px;
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  border: none;
+  color: #fff;
+  background-color: var(--primary-clr);
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border: 1px solid var(--primary-clr);
   margin-left: 10px; /* Abstand zum Speichern-Button */
+}
+
+.delete-event-btn:hover {
+  background-color: transparent;
+  color: var(--primary-clr);
 }
