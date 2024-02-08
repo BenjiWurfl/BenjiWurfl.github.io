@@ -360,10 +360,24 @@ function updateEvents(selectedDay) {
   }
 
   eventsContainer.innerHTML = events;
+  addEventListenersToEvents();
 }
 
 //function to add event
 addEventBtn.addEventListener("click", () => {
+  // Formular zurücksetzen
+  addEventTitle.value = '';
+  addEventDescription.value = '';
+  addEventFrom.value = '';
+  addEventTo.value = '';
+  document.getElementById('allDayEvent').checked = false;
+
+  // Submit-Button zurücksetzen, um ein neues Event hinzuzufügen
+  addEventSubmit.onclick = () => addEventToFirestore();
+
+  // Löschen-Button ausblenden, wenn man ein neues Event hinzufügt
+  deleteEventBtn.style.display = 'none';
+
   addEventWrapper.classList.toggle("active");
 });
 
@@ -514,3 +528,75 @@ function deleteEventFromFirestore(eventId) {
     });
     markEventsOnCalendar();
 }
+
+// Funktion zum Öffnen des Bearbeitungsformulars mit den vorhandenen Event-Daten
+
+function editEvent(eventObj) {
+  addEventTitle.value = eventObj.title;
+  addEventDescription.value = eventObj.description;
+  addEventFrom.value = eventObj.timeFrom;
+  addEventTo.value = eventObj.timeTo;
+  document.getElementById('allDayEvent').checked = eventObj.allDay;
+  addEventWrapper.classList.add('active');
+  // Setzen der Funktion zum Speichern der Änderungen auf den Submit-Button
+  addEventSubmit.onclick = () => saveChanges(eventObj.id);
+  deleteEventBtn.style.display = 'block';
+  deleteEventBtn.onclick = () => deleteEventFromFirestore(eventObj.id);
+}
+
+// Funktion zum Speichern der Änderungen im Firestore
+
+function saveChanges(eventId) {
+  const updatedEvent = {
+    title: addEventTitle.value,
+    description: addEventDescription.value,
+    timeFrom: addEventFrom.value,
+    timeTo: addEventTo.value,
+    allDay: document.getElementById('allDayEvent').checked,
+    day: activeDay,
+    month: month + 1,
+    year: year,
+    date: new Date(year, month, activeDay)
+  };
+
+  const eventRef = doc(db, "users", auth.currentUser.uid, "events", eventId);
+  updateDoc(eventRef, updatedEvent).then(() => {
+    console.log("Event updated!");
+    // Aktualisieren Sie das Event im Array
+    const eventIndex = eventsArr.findIndex(event => event.id === eventId);
+    if (eventIndex !== -1) {
+      eventsArr[eventIndex] = { ...eventsArr[eventIndex], ...updatedEvent };
+    }
+    // Schließen Sie das Bearbeitungsformular und aktualisieren Sie die Anzeige
+    addEventWrapper.classList.remove('active');
+    updateEvents(activeDay);
+    markEventsOnCalendar();
+  }).catch(error => {
+    console.error("Error updating event: ", error);
+  });
+  // Nach dem Speichern den Löschen-Button wieder ausblenden
+  deleteEventBtn.style.display = 'none';
+}
+
+// Hinzufügen eines Event-Listeners zu jedem Event, um das Bearbeitungsformular zu öffnen
+
+function addEventListenersToEvents() {
+  document.querySelectorAll('.event').forEach(eventElement => {
+    eventElement.addEventListener('click', () => {
+      const eventTitle = eventElement.querySelector('.event-title').textContent;
+      const eventObj = eventsArr.find(event => 
+        event.day === activeDay &&
+        event.month === month + 1 &&
+        event.year === year &&
+        event.title === eventTitle
+      );
+
+      if (eventObj) {
+        editEvent(eventObj);
+      }
+    });
+  });
+}
+
+// Referenz zum Löschen-Button hinzufügen
+const deleteEventBtn = document.querySelector(".delete-event-btn");
