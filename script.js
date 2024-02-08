@@ -417,9 +417,6 @@ addEventTo.addEventListener("input", (e) => {
   }
 });
 
-// Event-Listener für den Submit-Button aktualisieren
-addEventSubmit.addEventListener("click", addEventToFirestore);
-
 function addEventToFirestore() {
   // Erstellen des Event-Objekts aus den Formulareingaben
   const eventTitle = addEventTitle.value;
