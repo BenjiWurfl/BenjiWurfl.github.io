@@ -114,48 +114,6 @@ function loadUserEvents() {
   }
 }
 
-function openEditEventWindow(eventId) {
-  const eventToEdit = eventsArr.find(event => event.id === eventId);
-  if (eventToEdit) {
-    addEventTitle.value = eventToEdit.title;
-    addEventDescription.value = eventToEdit.description;
-    addEventFrom.value = eventToEdit.timeFrom;
-    addEventTo.value = eventToEdit.timeTo;
-    // ... Setzen weiterer Felder, falls vorhanden
-
-    addEventWrapper.classList.add("active"); // Öffnet das Fenster
-    addEventSubmit.onclick = () => updateEvent(eventId); // Setzt die Funktion zum Aktualisieren des Events
-  }
-}
-
-function updateEvent(eventId) {
-  const updatedEvent = {
-    title: addEventTitle.value,
-    description: addEventDescription.value,
-    timeFrom: addEventFrom.value,
-    timeTo: addEventTo.value,
-    // ... weitere Felder
-    day: activeDay,
-    month: month + 1,
-    year: year,
-    date: new Date(year, month, activeDay)
-  };
-
-  const eventRef = doc(db, "users", auth.currentUser.uid, "events", eventId);
-  updateDoc(eventRef, updatedEvent).then(() => {
-    console.log("Event updated with ID: ", eventId);
-    const eventIndex = eventsArr.findIndex(event => event.id === eventId);
-    if (eventIndex !== -1) {
-      eventsArr[eventIndex] = { id: eventId, ...updatedEvent };
-    }
-    updateEvents(activeDay);
-    addEventWrapper.classList.remove("active");
-    clearEventForm();
-  }).catch(error => {
-    console.error("Error updating event: ", error);
-  });
-}
-
 function redirectToLogin() {
   window.location.href = 'https://benjiwurfl.github.io/Login/';
 }
@@ -388,7 +346,6 @@ function updateEvents(selectedDay) {
         <div class="title">
           <i class="fas fa-circle"></i>
           <h3 class="event-title">${eventObj.title}</h3>
-          <button onclick="event.stopPropagation(); openEditEventWindow('${eventObj.id}')" class="edit-event-btn"><i class="fas fa-edit"></i></button>
         </div>
         ${eventDescriptionText} 
         <div class="event-time">
