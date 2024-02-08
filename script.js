@@ -367,6 +367,12 @@ function updateEvents(selectedDay) {
   addEventListenersToEvents();
 }
 
+function confirmDelete(eventId) {
+  if (confirm("Are you sure you want to delete this event?")) {
+    deleteEventFromFirestore(eventId);
+  }
+}
+
 //function to add event
 addEventBtn.addEventListener("click", () => {
   // Formular zurücksetzen
