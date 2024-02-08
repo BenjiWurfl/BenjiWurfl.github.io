@@ -543,13 +543,18 @@ function editEvent(eventId) {
   addEventTo.value = eventObj.timeTo;
   document.getElementById('allDayEvent').checked = eventObj.allDay;
 
-  // Anpassen des Submit-Buttons zum Aktualisieren statt Hinzufügen
+  // Setzen des "Update Event" Textes und des onclick Handlers für das Update
   addEventSubmit.textContent = "Update Event";
   addEventSubmit.onclick = () => updateEventInFirestore(eventId);
 
-  // Löschbutton Event Listener
+  // Stelle sicher, dass der "Delete" Button und sein Event-Handler korrekt konfiguriert sind
   const deleteButton = document.querySelector(".delete-event-btn");
-  deleteButton.onclick = () => deleteEventConfirmation(eventId)
+  if (deleteButton) { // Überprüfe, ob der Button existiert, bevor du versuchst, ihn zu konfigurieren
+    deleteButton.style.display = 'block'; // Stelle sicher, dass der Button sichtbar ist
+    deleteButton.onclick = () => deleteEventConfirmation(eventId);
+  } else {
+    console.log("Delete button not found."); // Für Debugging-Zwecke
+  }
 }
 
 function deleteEventConfirmation(eventId) {
