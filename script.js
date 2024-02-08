@@ -417,38 +417,35 @@ addEventTo.addEventListener("input", (e) => {
   }
 });
 
-//function to add event to eventsArr
-addEventSubmit.addEventListener("click", () => {
+// Event-Listener für den Submit-Button aktualisieren
+addEventSubmit.addEventListener("click", addEventToFirestore);
+
+function addEventToFirestore() {
+  // Erstellen des Event-Objekts aus den Formulareingaben
   const eventTitle = addEventTitle.value;
   const eventDescription = addEventDescription.value;
   const allDay = document.getElementById('allDayEvent').checked;
-  let eventTimeFrom = '00:00';
-  let eventTimeTo = '23:59';
+  let eventTimeFrom = allDay ? '00:00' : addEventFrom.value;
+  let eventTimeTo = allDay ? '23:59' : addEventTo.value;
 
-  if (!allDay) {
-    eventTimeFrom = addEventFrom.value;
-    eventTimeTo = addEventTo.value;
-    if (eventTitle === "" || eventDescription === "" || eventTimeFrom === "" || eventTimeTo === "") {
-      alert("Bitte füllen Sie alle Felder aus, es sei denn, es ist ein ganztägiges Ereignis.");
-      return;
-    }
+  if (!allDay && (eventTitle === "" || eventDescription === "" || eventTimeFrom === "" || eventTimeTo === "")) {
+    alert("Bitte füllen Sie alle Felder aus, es sei denn, es ist ein ganztägiges Ereignis.");
+    return;
   }
 
   const newEvent = {
     title: eventTitle,
-    description: eventDescription, // Neue Beschreibung hinzufügen
+    description: eventDescription,
     timeFrom: eventTimeFrom,
     timeTo: eventTimeTo,
+    allDay: allDay,
     day: activeDay,
     month: month + 1,
     year: year,
     date: new Date(year, month, activeDay) // Datum des Events
   };
 
-  addEventToFirestore(newEvent);
-});
-
-function addEventToFirestore(newEvent) {
+  // Jetzt wird geprüft, ob der Benutzer angemeldet ist
   const user = auth.currentUser;
   if (!user) {
     alert("You must be logged in to add events.");
@@ -464,20 +461,20 @@ function addEventToFirestore(newEvent) {
     newEvent.id = docRef.id; // Fügen Sie die ID zum Event hinzu
     eventsArr.push(newEvent); // Fügen Sie das Event zum Array hinzu
     updateEvents(activeDay); // Aktualisieren Sie den Kalender
-    //select active day and add event class if not added
     const activeDayEl = document.querySelector(".day.active");
     if (!activeDayEl.classList.contains("event")) {
       activeDayEl.classList.add("event");
     }
+    addEventWrapper.classList.remove('active'); // Schließen des Formulars
+    // Reset des Formulars
+    addEventTitle.value = "";
+    addEventDescription.value = "";
+    addEventFrom.value = "";
+    addEventTo.value = "";
+    document.getElementById('allDayEvent').checked = false;
   }).catch(error => {
     console.error("Error adding event: ", error);
   });
-
-  addEventWrapper.classList.remove("active");
-  addEventTitle.value = "";
-  addEventDescription.value = "";
-  addEventFrom.value = "";
-  addEventTo.value = "";
 }
 
 //function to delete event when clicked inside the events container
