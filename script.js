@@ -346,6 +346,10 @@ function updateEvents(selectedDay) {
         <div class="title">
           <i class="fas fa-circle"></i>
           <h3 class="event-title">${eventObj.title}</h3>
+          <div class="event-controls">
+            <button onclick="editEvent(${JSON.stringify(eventObj).split('"').join("&quot;")})">Bearbeiten</button>
+            <button onclick="confirmDelete('${eventObj.id}')">Löschen</button>
+          </div>
         </div>
         ${eventDescriptionText} 
         <div class="event-time">
