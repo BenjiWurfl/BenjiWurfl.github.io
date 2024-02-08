@@ -342,13 +342,13 @@ function updateEvents(selectedDay) {
     if (selectedDay === eventObj.day && month + 1 === eventObj.month && year === eventObj.year) {
       let eventTimeText = eventObj.allDay ? "Ganztägig" : `${eventObj.timeFrom} - ${eventObj.timeTo}`;
       let eventDescriptionText = eventObj.description ? `<div class="event-description">${eventObj.description}</div>` : "";
-      events += `<div class="event" onclick="editEvent(${JSON.stringify(eventObj).split('"').join("&quot;")})">
-        <div class="title">
-          <i class="fas fa-circle"></i>
-          <h3 class="event-title">${eventObj.title}</h3>
-        </div>
-        ${eventDescriptionText}
-        <div class="event-time">${eventTimeText}</div>
+      events += `<div class="event" data-event-id="${eventObj.id}">
+      <div class="title">
+        <i class="fas fa-circle"></i>
+        <h3 class="event-title">${eventObj.title}</h3>
+      </div>
+      ${eventDescriptionText}
+      <div class="event-time">${eventTimeText}</div>
       </div>`;
     }
   });
@@ -358,6 +358,17 @@ function updateEvents(selectedDay) {
   }
 
   eventsContainer.innerHTML = events;
+
+  const eventElements = document.querySelectorAll('.event');
+  eventElements.forEach(eventElement => {
+    eventElement.addEventListener('click', () => {
+      const eventId = eventElement.dataset.eventId;
+      const eventObj = eventsArr.find(event => event.id === eventId);
+      if (eventObj) {
+        editEvent(eventObj);
+      }
+    });
+  });
 }
 
 //function to add event
