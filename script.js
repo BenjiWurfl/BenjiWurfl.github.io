@@ -546,7 +546,6 @@ function editEvent(eventId) {
   // Anpassen des Submit-Buttons zum Aktualisieren statt Hinzufügen
   addEventSubmit.textContent = "Update Event";
   addEventSubmit.onclick = () => updateEventInFirestore(eventId);
-  resetAndCloseEditForm();
 
   // Löschbutton Event Listener
   const deleteButton = document.querySelector(".delete-event-btn");
