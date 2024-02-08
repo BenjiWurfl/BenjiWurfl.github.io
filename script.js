@@ -342,19 +342,13 @@ function updateEvents(selectedDay) {
     if (selectedDay === eventObj.day && month + 1 === eventObj.month && year === eventObj.year) {
       let eventTimeText = eventObj.allDay ? "Ganztägig" : `${eventObj.timeFrom} - ${eventObj.timeTo}`;
       let eventDescriptionText = eventObj.description ? `<div class="event-description">${eventObj.description}</div>` : "";
-      events += `<div class="event">
+      events += `<div class="event" onclick="editEvent(${JSON.stringify(eventObj).split('"').join("&quot;")})">
         <div class="title">
           <i class="fas fa-circle"></i>
           <h3 class="event-title">${eventObj.title}</h3>
-          <div class="event-controls">
-            <button onclick="editEvent(${JSON.stringify(eventObj).split('"').join("&quot;")})">Bearbeiten</button>
-            <button onclick="confirmDelete('${eventObj.id}')">Löschen</button>
-          </div>
         </div>
-        ${eventDescriptionText} 
-        <div class="event-time">
-          <span class="event-time">${eventTimeText}</span>
-        </div>
+        ${eventDescriptionText}
+        <div class="event-time">${eventTimeText}</div>
       </div>`;
     }
   });
@@ -364,13 +358,6 @@ function updateEvents(selectedDay) {
   }
 
   eventsContainer.innerHTML = events;
-  addEventListenersToEvents();
-}
-
-function confirmDelete(eventId) {
-  if (confirm("Are you sure you want to delete this event?")) {
-    deleteEventFromFirestore(eventId);
-  }
 }
 
 //function to add event
@@ -536,20 +523,30 @@ function deleteEventFromFirestore(eventId) {
 // Funktion zum Öffnen des Bearbeitungsformulars mit den vorhandenen Event-Daten
 
 function editEvent(eventObj) {
+  // Füllen Sie die Formularfelder mit den Event-Daten
   addEventTitle.value = eventObj.title;
-  addEventDescription.value = eventObj.description;
-  addEventFrom.value = eventObj.timeFrom;
-  addEventTo.value = eventObj.timeTo;
-  document.getElementById('allDayEvent').checked = eventObj.allDay;
+  addEventDescription.value = eventObj.description || '';
+  addEventFrom.value = eventObj.timeFrom || '';
+  addEventTo.value = eventObj.timeTo || '';
+  document.getElementById('allDayEvent').checked = eventObj.allDay || false;
+
+  // Anzeigen des Formulars
   addEventWrapper.classList.add('active');
-  // Setzen der Funktion zum Speichern der Änderungen auf den Submit-Button
+
+  // Anzeigen des "Löschen"-Buttons nur beim Bearbeiten
+  const deleteBtn = document.querySelector('.delete-event-btn');
+  deleteBtn.style.display = 'block';
+  deleteBtn.onclick = () => {
+    if (confirm("Möchten Sie dieses Event wirklich löschen?")) {
+      deleteEventFromFirestore(eventObj.id);
+    }
+  };
+
+  // Ändern der Aktion des "Speichern"-Buttons, um Änderungen zu speichern
   addEventSubmit.onclick = () => saveChanges(eventObj.id);
-  deleteEventBtn.style.display = 'block';
-  deleteEventBtn.onclick = () => deleteEventFromFirestore(eventObj.id);
 }
 
 // Funktion zum Speichern der Änderungen im Firestore
-
 function saveChanges(eventId) {
   const updatedEvent = {
     title: addEventTitle.value,
@@ -581,26 +578,3 @@ function saveChanges(eventId) {
   // Nach dem Speichern den Löschen-Button wieder ausblenden
   deleteEventBtn.style.display = 'none';
 }
-
-// Hinzufügen eines Event-Listeners zu jedem Event, um das Bearbeitungsformular zu öffnen
-
-function addEventListenersToEvents() {
-  document.querySelectorAll('.event').forEach(eventElement => {
-    eventElement.addEventListener('click', () => {
-      const eventTitle = eventElement.querySelector('.event-title').textContent;
-      const eventObj = eventsArr.find(event => 
-        event.day === activeDay &&
-        event.month === month + 1 &&
-        event.year === year &&
-        event.title === eventTitle
-      );
-
-      if (eventObj) {
-        editEvent(eventObj);
-      }
-    });
-  });
-}
-
-// Referenz zum Löschen-Button hinzufügen
-const deleteEventBtn = document.querySelector(".delete-event-btn");
