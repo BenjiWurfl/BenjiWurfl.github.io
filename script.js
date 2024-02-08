@@ -17,6 +17,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const eventsArr = [];
+let currentMode = "add"; // Mögliche Werte: "add", "edit"
 
 const months = [
   "January",
@@ -364,7 +365,10 @@ function updateEvents(selectedDay) {
 
 //function to add event
 addEventBtn.addEventListener("click", () => {
+  currentMode = "add";
   addEventWrapper.classList.toggle("active");
+  addEventSubmit.textContent = "Add Event";
+  addEventSubmit.onclick = () => addEventToFirestore();
 });
 
 addEventCloseBtn.addEventListener("click", () => {
@@ -527,9 +531,11 @@ function resetAndCloseEditForm() {
   addEventFrom.value = "";
   addEventTo.value = "";
   document.getElementById('allDayEvent').checked = false;
+  currentMode = "add";
 }
 
 function editEvent(eventId) {
+  currentMode = "edit";
   console.log("Editing event ID:", eventId);
   const eventObj = eventsArr.find(event => event.id === eventId);
   console.log("Event object for editing:", eventObj);
@@ -545,7 +551,14 @@ function editEvent(eventId) {
 
   // Setzen des "Update Event" Textes und des onclick Handlers für das Update
   addEventSubmit.textContent = "Update Event";
-  addEventSubmit.onclick = () => updateEventInFirestore(eventId);
+  // Setze den Handler basierend auf dem aktuellen Modus
+  addEventSubmit.onclick = () => {
+    if (currentMode === "edit") {
+      updateEventInFirestore(eventId);
+    } else {
+      console.error("Unbekannter Modus!");
+    }
+  };
 
   // Stelle sicher, dass der "Delete" Button und sein Event-Handler korrekt konfiguriert sind
   const deleteButton = document.querySelector(".delete-event-btn");
