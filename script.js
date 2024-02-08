@@ -468,9 +468,12 @@ function addEventToFirestore(newEvent) {
 
 //function to delete event when clicked inside the events container
 eventsContainer.addEventListener("click", (e) => {
+  console.log("Clicked inside eventsContainer");
   const eventElement = e.target.closest(".event");
   if (eventElement) {
+    console.log("Event element clicked", eventElement);
     const eventTitle = eventElement.querySelector(".event-title").textContent;
+    console.log("Event title:", eventTitle);
     const eventObj = eventsArr.find(event => 
       event.day === activeDay &&
       event.month === month + 1 &&
@@ -478,7 +481,9 @@ eventsContainer.addEventListener("click", (e) => {
       event.title === eventTitle
     );
 
+    console.log("Found event object:", eventObj);
     if (eventObj && eventObj.id) {
+      console.log("Editing event with ID:", eventObj.id);
       editEvent(eventObj.id);
     }
   }
@@ -512,7 +517,9 @@ function deleteEventFromFirestore(eventId) {
 }
 
 function editEvent(eventId) {
+  console.log("Editing event ID:", eventId);
   const eventObj = eventsArr.find(event => event.id === eventId);
+  console.log("Event object for editing:", eventObj);
   if (!eventObj) return;
 
   // Öffnen des Bearbeitungsfensters und Vorbelegen der Felder
@@ -533,12 +540,15 @@ function editEvent(eventId) {
 }
 
 function deleteEventConfirmation(eventId) {
+  console.log("Request to delete event ID:", eventId);
   if (confirm("Are you sure you want to delete this event?")) {
+    console.log("Deleting event ID:", eventId);
     deleteEventFromFirestore(eventId);
   }
 }
 
 function updateEventInFirestore(eventId) {
+  console.log("Updating event ID:", eventId);
   const eventRef = doc(db, "users", auth.currentUser.uid, "events", eventId);
   const updatedEvent = {
     title: addEventTitle.value,
