@@ -606,3 +606,10 @@
   color: #ddd;
   font-weight: bold;
 }
+
+.delete-event-btn {
+  background-color: red; /* Rote Farbe für den Löschen-Button */
+  color: white; /* Weiße Textfarbe */
+  border: none; /* Entfernen des Rands */
+  margin-left: 10px; /* Abstand zum Speichern-Button */
+}

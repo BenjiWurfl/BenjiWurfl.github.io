@@ -473,22 +473,18 @@ function addEventToFirestore() {
 
 //function to delete event when clicked inside the events container
 eventsContainer.addEventListener("click", (e) => {
-  const eventElement = e.target.closest(".event"); // Findet das nächste übergeordnete Element mit der Klasse `event`
-  if (eventElement) { // Prüft, ob ein solches Element gefunden wurde
-    if (confirm("Are you sure you want to delete this event?")) {
-      const eventTitle = eventElement.querySelector(".event-title").textContent; // Zugriff auf den Titel
+  // Findet das nächste übergeordnete Element mit der Klasse `event`
+  const eventElement = e.target.closest(".event");
+  if (eventElement) {
+    // Extrahieren der Event-ID aus dem data-Attribut des Event-Elements
+    const eventId = eventElement.dataset.eventId;
 
-      // Finden des Event-Objekts im Array
-      const eventObj = eventsArr.find(event => 
-        event.day === activeDay &&
-        event.month === month + 1 &&
-        event.year === year &&
-        event.title === eventTitle
-      );
+    // Finden des Event-Objekts im Array anhand der ID
+    const eventObj = eventsArr.find(event => event.id === eventId);
 
-      if (eventObj && eventObj.id) {
-        deleteEventFromFirestore(eventObj.id);
-      }
+    if (eventObj) {
+      // Öffnet das Bearbeitungsformular mit den Daten des Events
+      editEvent(eventObj);
     }
   }
 });
