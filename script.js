@@ -507,13 +507,26 @@ function deleteEventFromFirestore(eventId) {
         eventsArr.splice(eventIndex, 1);
       }
 
-      // Kalender neu initialisieren, um Änderungen widerzuspiegeln (Balken unter Datum)
+      // Kalender neu initialisieren, um Änderungen widerzuspiegeln
       initCalendar();
+      markEventsOnCalendar();
+
+      // Schließen des Bearbeitungsfensters und Leeren der Felder
+      resetAndCloseEditForm();
     })
     .catch(error => {
       console.error("Error removing event: ", error);
     });
-    markEventsOnCalendar();
+}
+
+function resetAndCloseEditForm() {
+  addEventWrapper.classList.remove("active"); // Schließen des Bearbeitungsfensters
+  // Leeren aller Eingabefelder
+  addEventTitle.value = "";
+  addEventDescription.value = "";
+  addEventFrom.value = "";
+  addEventTo.value = "";
+  document.getElementById('allDayEvent').checked = false;
 }
 
 function editEvent(eventId) {
@@ -533,6 +546,7 @@ function editEvent(eventId) {
   // Anpassen des Submit-Buttons zum Aktualisieren statt Hinzufügen
   addEventSubmit.textContent = "Update Event";
   addEventSubmit.onclick = () => updateEventInFirestore(eventId);
+  resetAndCloseEditForm();
 
   // Löschbutton Event Listener
   const deleteButton = document.querySelector(".delete-event-btn");
