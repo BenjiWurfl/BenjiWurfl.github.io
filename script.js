@@ -490,10 +490,11 @@ function addEventToFirestore(newEvent) {
   addEventTo.value = "";
 }
 
-// Ändern des Event-Listeners, um das Event zu bearbeiten statt zu löschen
+// Event-Listener für das Klicken auf ein Event
 eventsContainer.addEventListener("click", (e) => {
   const eventElement = e.target.closest(".event");
   if (eventElement) {
+    // Findet das Event-Objekt basierend auf dem Titel und dem aktiven Tag
     const eventTitle = eventElement.querySelector(".event-title").textContent;
     const eventObj = eventsArr.find(event => 
       event.title === eventTitle &&
@@ -501,6 +502,8 @@ eventsContainer.addEventListener("click", (e) => {
       event.month === month + 1 &&
       event.year === year
     );
+
+    // Wenn ein Event-Objekt gefunden wird, öffnet und befüllt das Formular
     if (eventObj) {
       setEventFormData(eventObj);
       addEventWrapper.classList.add("active");
@@ -508,13 +511,15 @@ eventsContainer.addEventListener("click", (e) => {
   }
 });
 
-// Update der Logik für den Delete-Button
+// Logik für den Delete-Button aktualisieren, um das Formular zu schließen und zurückzusetzen
 document.querySelector(".delete-event-btn").addEventListener("click", () => {
   if (editingEventId && confirm("Are you sure you want to delete this event?")) {
     deleteEventFromFirestore(editingEventId);
+    resetEventFormData(); // Formular zurücksetzen, wenn das Event gelöscht wird
   }
 });
 
+// Funktion zum Löschen eines Events aus Firestore und Schließen des Formulars
 function deleteEventFromFirestore(eventId) {
   const user = auth.currentUser;
   if (!user) {
@@ -527,19 +532,33 @@ function deleteEventFromFirestore(eventId) {
     .then(() => {
       console.log("Event successfully deleted!");
 
-      // Entfernen Sie das Event aus dem lokalen Array
+      // Entfernt das Event aus dem lokalen Array
       const eventIndex = eventsArr.findIndex(event => event.id === eventId);
       if (eventIndex !== -1) {
         eventsArr.splice(eventIndex, 1);
       }
 
-      // Kalender neu initialisieren, um Änderungen widerzuspiegeln (Balken unter Datum)
+      // Schließt und leert das Formular nach dem Löschen
+      addEventWrapper.classList.remove("active");
+      resetEventFormData();
+
+      // Initialisiert den Kalender neu, um Änderungen widerzuspiegeln
       initCalendar();
+      markEventsOnCalendar();
     })
     .catch(error => {
       console.error("Error removing event: ", error);
     });
-    markEventsOnCalendar();
+}
+
+// Funktion zum Zurücksetzen des Formulars
+function resetEventFormData() {
+  addEventTitle.value = "";
+  addEventDescription.value = "";
+  addEventFrom.value = "";
+  addEventTo.value = "";
+  document.getElementById('allDayEvent').checked = false;
+  editingEventId = null;
 }
 
 // Funktion zum Setzen der Event-Daten im Formular
