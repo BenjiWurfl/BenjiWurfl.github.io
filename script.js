@@ -366,9 +366,16 @@ function updateEvents(selectedDay) {
 //function to add event
 addEventBtn.addEventListener("click", () => {
   currentMode = "add";
-  addEventWrapper.classList.toggle("active");
+  clearFormFields(); // Formularfelder leeren
+  addEventWrapper.classList.add("active");
   addEventSubmit.textContent = "Add Event";
-  addEventSubmit.onclick = () => addEventToFirestore();
+  addEventSubmit.onclick = () => {
+    if (currentMode === "add") {
+      // Erstelle ein neues Event-Objekt basierend auf den Formulareingaben
+      const newEvent = createEventObjectFromForm();
+      addEventToFirestore(newEvent);
+    }
+  };
 });
 
 addEventCloseBtn.addEventListener("click", () => {
@@ -408,35 +415,29 @@ addEventTo.addEventListener("input", (e) => {
 });
 
 //function to add event to eventsArr
-addEventSubmit.addEventListener("click", () => {
-  const eventTitle = addEventTitle.value;
-  const eventDescription = addEventDescription.value;
-  const allDay = document.getElementById('allDayEvent').checked;
-  let eventTimeFrom = '00:00';
-  let eventTimeTo = '23:59';
-
-  if (!allDay) {
-    eventTimeFrom = addEventFrom.value;
-    eventTimeTo = addEventTo.value;
-    if (eventTitle === "" || eventDescription === "" || eventTimeFrom === "" || eventTimeTo === "") {
-      alert("Bitte füllen Sie alle Felder aus, es sei denn, es ist ein ganztägiges Ereignis.");
-      return;
-    }
+addEventSubmit.onclick = () => {
+  if (currentMode === "edit") {
+    // Aktualisiere das Event basierend auf den Formulareingaben
+    const updatedEvent = createEventObjectFromForm();
+    updateEventInFirestore(currentEventId, updatedEvent); // currentEventId sollte die ID des zu aktualisierenden Events sein
+  } else if (currentMode === "add") {
+    // Füge ein neues Event hinzu
+    const newEvent = createEventObjectFromForm();
+    addEventToFirestore(newEvent);
   }
+};
 
-  const newEvent = {
-    title: eventTitle,
-    description: eventDescription, // Neue Beschreibung hinzufügen
-    timeFrom: eventTimeFrom,
-    timeTo: eventTimeTo,
-    day: activeDay,
-    month: month + 1,
-    year: year,
-    date: new Date(year, month, activeDay) // Datum des Events
+// Hilfsfunktion zum Erstellen eines Event-Objekts aus Formulareingaben
+function createEventObjectFromForm() {
+  return {
+    title: addEventTitle.value,
+    description: addEventDescription.value,
+    timeFrom: addEventFrom.value,
+    timeTo: addEventTo.value,
+    allDay: document.getElementById('allDayEvent').checked,
+    // Füge weitere erforderliche Felder hinzu
   };
-
-  addEventToFirestore(newEvent);
-});
+}
 
 function addEventToFirestore(newEvent) {
   const user = auth.currentUser;
