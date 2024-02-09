@@ -369,7 +369,13 @@ addEventBtn.addEventListener("click", () => {
   clearFormFields(); // Formularfelder leeren, bevor das Formular angezeigt wird
   addEventWrapper.classList.add("active");
   addEventSubmit.textContent = "Add Event";
-  addEventSubmit.onclick = createAddEventOnClick(); // Aktualisiere diesen Aufruf entsprechend
+  addEventSubmit.onclick = () => {
+    if (currentMode === "add") {
+      // Erstelle ein neues Event-Objekt basierend auf den Formulareingaben
+      const newEvent = createEventObjectFromForm();
+      addEventToFirestore(newEvent);
+    }
+  };
 });
 
 addEventCloseBtn.addEventListener("click", () => {
