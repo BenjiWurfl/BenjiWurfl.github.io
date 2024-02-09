@@ -372,13 +372,6 @@ addEventCloseBtn.addEventListener("click", () => {
   addEventWrapper.classList.remove("active");
 });
 
-document.addEventListener("click", (e) => {
-  if (e.target !== addEventBtn && !addEventWrapper.contains(e.target)) {
-    console.log("Remove wird hier in Zeile 377 aufgerufen!");
-    addEventWrapper.classList.remove("active");
-  }
-});
-
 //allow 50 chars in eventtitle
 addEventTitle.addEventListener("input", (e) => {
   addEventTitle.value = addEventTitle.value.slice(0, 60);
