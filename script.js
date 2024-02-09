@@ -17,7 +17,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const eventsArr = [];
-let currentMode = "add"; // Mögliche Werte: "add", "edit"
+let editingEventId = null;
 
 const months = [
   "January",
@@ -363,19 +363,9 @@ function updateEvents(selectedDay) {
   eventsContainer.innerHTML = events;
 }
 
-// Funktion, um das Event-Formular zu öffnen und die Felder zu leeren
+//function to add event
 addEventBtn.addEventListener("click", () => {
-  currentMode = "add";
-  clearFormFields(); // Formularfelder leeren, bevor das Formular angezeigt wird
-  addEventWrapper.classList.add("active");
-  addEventSubmit.textContent = "Add Event";
-  addEventSubmit.onclick = () => {
-    if (currentMode === "add") {
-      // Erstelle ein neues Event-Objekt basierend auf den Formulareingaben
-      const newEvent = createEventObjectFromForm();
-      addEventToFirestore(newEvent);
-    }
-  };
+  addEventWrapper.classList.toggle("active");
 });
 
 addEventCloseBtn.addEventListener("click", () => {
@@ -415,29 +405,37 @@ addEventTo.addEventListener("input", (e) => {
 });
 
 //function to add event to eventsArr
-addEventSubmit.onclick = () => {
-  if (currentMode === "edit") {
-    // Aktualisiere das Event basierend auf den Formulareingaben
-    const updatedEvent = createEventObjectFromForm();
-    updateEventInFirestore(currentEventId, updatedEvent); // currentEventId sollte die ID des zu aktualisierenden Events sein
-  } else if (currentMode === "add") {
-    // Füge ein neues Event hinzu
-    const newEvent = createEventObjectFromForm();
+addEventSubmit.addEventListener("click", () => {
+  const eventTitle = addEventTitle.value;
+  const eventDescription = addEventDescription.value;
+  const allDay = document.getElementById('allDayEvent').checked;
+  let eventTimeFrom = '00:00';
+  let eventTimeTo = '23:59';
+
+  if (!allDay) {
+    eventTimeFrom = addEventFrom.value;
+    eventTimeTo = addEventTo.value;
+    if (eventTitle === "" || eventDescription === "" || eventTimeFrom === "" || eventTimeTo === "") {
+      alert("Bitte füllen Sie alle Felder aus, es sei denn, es ist ein ganztägiges Ereignis.");
+      return;
+    }
+  }
+
+  if (editingEventId) {
+    // Logik zum Updaten eines bestehenden Events
+    editEventInFirestore(editingEventId, {
+      title: eventTitle,
+      description: eventDescription,
+      timeFrom: eventTimeFrom,
+      timeTo: eventTimeTo,
+      allDay: allDay
+      // Weitere zu aktualisierende Felder...
+    });
+  } else {
+    // Logik zum Hinzufügen eines neuen Events
     addEventToFirestore(newEvent);
   }
-};
-
-// Hilfsfunktion zum Erstellen eines Event-Objekts aus Formulareingaben
-function createEventObjectFromForm() {
-  return {
-    title: addEventTitle.value,
-    description: addEventDescription.value,
-    timeFrom: addEventFrom.value,
-    timeTo: addEventTo.value,
-    allDay: document.getElementById('allDayEvent').checked,
-    // Füge weitere erforderliche Felder hinzu
-  };
-}
+});
 
 function addEventToFirestore(newEvent) {
   const user = auth.currentUser;
@@ -471,26 +469,28 @@ function addEventToFirestore(newEvent) {
   addEventTo.value = "";
 }
 
-//function to delete event when clicked inside the events container
+// Ändern des Event-Listeners, um das Event zu bearbeiten statt zu löschen
 eventsContainer.addEventListener("click", (e) => {
-  console.log("Clicked inside eventsContainer");
   const eventElement = e.target.closest(".event");
   if (eventElement) {
-    console.log("Event element clicked", eventElement);
     const eventTitle = eventElement.querySelector(".event-title").textContent;
-    console.log("Event title:", eventTitle);
     const eventObj = eventsArr.find(event => 
+      event.title === eventTitle &&
       event.day === activeDay &&
       event.month === month + 1 &&
-      event.year === year &&
-      event.title === eventTitle
+      event.year === year
     );
-
-    console.log("Found event object:", eventObj);
-    if (eventObj && eventObj.id) {
-      console.log("Editing event with ID:", eventObj.id);
-      editEvent(eventObj.id);
+    if (eventObj) {
+      setEventFormData(eventObj);
+      addEventWrapper.classList.add("active");
     }
+  }
+});
+
+// Update der Logik für den Delete-Button
+document.querySelector(".delete-event-btn").addEventListener("click", () => {
+  if (editingEventId && confirm("Are you sure you want to delete this event?")) {
+    deleteEventFromFirestore(editingEventId);
   }
 });
 
@@ -512,98 +512,41 @@ function deleteEventFromFirestore(eventId) {
         eventsArr.splice(eventIndex, 1);
       }
 
-      // Kalender neu initialisieren, um Änderungen widerzuspiegeln
+      // Kalender neu initialisieren, um Änderungen widerzuspiegeln (Balken unter Datum)
       initCalendar();
-      markEventsOnCalendar();
-
-      // Schließen des Bearbeitungsfensters und Leeren der Felder
-      resetAndCloseEditForm();
     })
     .catch(error => {
       console.error("Error removing event: ", error);
     });
+    markEventsOnCalendar();
 }
 
-function resetAndCloseEditForm() {
-  addEventWrapper.classList.remove("active"); // Schließen des Bearbeitungsfensters
-  // Leeren aller Eingabefelder
-  addEventTitle.value = "";
-  addEventDescription.value = "";
-  addEventFrom.value = "";
-  addEventTo.value = "";
-  document.getElementById('allDayEvent').checked = false;
-  currentMode = "add";
-}
-
-function clearFormFields() {
-  addEventTitle.value = "";
-  addEventDescription.value = "";
-  addEventFrom.value = "";
-  addEventTo.value = "";
-  document.getElementById('allDayEvent').checked = false;
-}
-
-function editEvent(eventId) {
-  currentMode = "edit";
-  console.log("Editing event ID:", eventId);
-  const eventObj = eventsArr.find(event => event.id === eventId);
-  console.log("Event object for editing:", eventObj);
-  if (!eventObj) return;
-
-  // Öffnen des Bearbeitungsfensters und Vorbelegen der Felder
-  addEventWrapper.classList.add("active");
+// Funktion zum Setzen der Event-Daten im Formular
+function setEventFormData(eventObj) {
   addEventTitle.value = eventObj.title;
   addEventDescription.value = eventObj.description;
   addEventFrom.value = eventObj.timeFrom;
   addEventTo.value = eventObj.timeTo;
   document.getElementById('allDayEvent').checked = eventObj.allDay;
-
-  // Setzen des "Update Event" Textes und des onclick Handlers für das Update
-  addEventSubmit.textContent = "Update Event";
-  // Setze den Handler basierend auf dem aktuellen Modus
-  addEventSubmit.onclick = () => {
-    if (currentMode === "edit") {
-      updateEventInFirestore(eventId);
-    } else {
-      console.error("Unbekannter Modus!");
-    }
-  };
-
-  // Stelle sicher, dass der "Delete" Button und sein Event-Handler korrekt konfiguriert sind
-  const deleteButton = document.querySelector(".delete-event-btn");
-  if (deleteButton) { // Überprüfe, ob der Button existiert, bevor du versuchst, ihn zu konfigurieren
-    deleteButton.style.display = 'block'; // Stelle sicher, dass der Button sichtbar ist
-    deleteButton.onclick = () => deleteEventConfirmation(eventId);
-  } else {
-    console.log("Delete button not found."); // Für Debugging-Zwecke
-  }
+  // Setzen der globalen Variable auf die ID des zu bearbeitenden Events
+  editingEventId = eventObj.id;
 }
 
-function deleteEventConfirmation(eventId) {
-  console.log("Request to delete event ID:", eventId);
-  if (confirm("Are you sure you want to delete this event?")) {
-    console.log("Deleting event ID:", eventId);
-    deleteEventFromFirestore(eventId);
+// Bearbeitete Event-Funktion, um Event zu aktualisieren
+function editEventInFirestore(eventId, updatedEvent) {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("You must be logged in to edit events.");
+    return;
   }
-}
 
-function updateEventInFirestore(eventId) {
-  console.log("Updating event ID:", eventId);
-  const eventRef = doc(db, "users", auth.currentUser.uid, "events", eventId); // Korrekter Pfad zum Dokument
-  
-  const updatedEvent = {
-    title: addEventTitle.value,
-    description: addEventDescription.value,
-    timeFrom: addEventFrom.value,
-    timeTo: addEventTo.value,
-    allDay: document.getElementById('allDayEvent').checked,
-  };
-
-  updateDoc(eventRef, updatedEvent).then(() => {
-    console.log("Event updated successfully");
-    loadUserEvents(); // Lädt die Events neu, um die Änderungen anzuzeigen
-    resetAndCloseEditForm(); // Schließt das Bearbeitungsfenster und setzt die Formularfelder zurück
-  }).catch(error => {
-    console.error("Error updating event: ", error);
-  });
+  const eventRef = doc(db, "users", user.uid, "events", eventId);
+  updateDoc(eventRef, updatedEvent)
+    .then(() => {
+      console.log("Event successfully updated!");
+      loadUserEvents(); // Lädt die Events neu
+    })
+    .catch(error => {
+      console.error("Error updating event: ", error);
+    });
 }
