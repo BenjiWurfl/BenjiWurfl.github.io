@@ -363,19 +363,13 @@ function updateEvents(selectedDay) {
   eventsContainer.innerHTML = events;
 }
 
-//function to add event
+// Funktion, um das Event-Formular zu öffnen und die Felder zu leeren
 addEventBtn.addEventListener("click", () => {
   currentMode = "add";
-  clearFormFields(); // Formularfelder leeren
+  clearFormFields(); // Formularfelder leeren, bevor das Formular angezeigt wird
   addEventWrapper.classList.add("active");
   addEventSubmit.textContent = "Add Event";
-  addEventSubmit.onclick = () => {
-    if (currentMode === "add") {
-      // Erstelle ein neues Event-Objekt basierend auf den Formulareingaben
-      const newEvent = createEventObjectFromForm();
-      addEventToFirestore(newEvent);
-    }
-  };
+  addEventSubmit.onclick = createAddEventOnClick(); // Aktualisiere diesen Aufruf entsprechend
 });
 
 addEventCloseBtn.addEventListener("click", () => {
@@ -533,6 +527,14 @@ function resetAndCloseEditForm() {
   addEventTo.value = "";
   document.getElementById('allDayEvent').checked = false;
   currentMode = "add";
+}
+
+function clearFormFields() {
+  addEventTitle.value = "";
+  addEventDescription.value = "";
+  addEventFrom.value = "";
+  addEventTo.value = "";
+  document.getElementById('allDayEvent').checked = false;
 }
 
 function editEvent(eventId) {
