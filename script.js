@@ -593,7 +593,7 @@ function updateEventInFirestore(eventId) {
   updateDoc(eventRef, updatedEvent).then(() => {
     console.log("Event updated successfully");
     loadUserEvents(); // Lädt die Events neu, um die Änderungen anzuzeigen
-    //resetAndCloseEditForm(); // Schließt das Bearbeitungsfenster und setzt die Formularfelder zurück
+    resetAndCloseEditForm(); // Schließt das Bearbeitungsfenster und setzt die Formularfelder zurück
   }).catch(error => {
     console.error("Error updating event: ", error);
   });
