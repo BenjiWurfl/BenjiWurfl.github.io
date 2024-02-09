@@ -374,6 +374,7 @@ addEventCloseBtn.addEventListener("click", () => {
 
 document.addEventListener("click", (e) => {
   if (e.target !== addEventBtn && !addEventWrapper.contains(e.target)) {
+    console.log("Remove wird hier in Zeile 377 aufgerufen!");
     addEventWrapper.classList.remove("active");
   }
 });
@@ -501,8 +502,11 @@ eventsContainer.addEventListener("click", (e) => {
       event.month === month + 1 &&
       event.year === year
     );
-    setEventFormData(eventObj);
-    addEventWrapper.classList.add("active");
+
+    if (eventObj) {
+      setEventFormData(eventObj);
+      addEventWrapper.classList.add("active"); // Öffnet das Fenster
+    }
   }
 });
 
