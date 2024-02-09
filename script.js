@@ -405,6 +405,7 @@ addEventTo.addEventListener("input", (e) => {
 });
 
 //function to add event to eventsArr
+//function to add event to eventsArr
 addEventSubmit.addEventListener("click", () => {
   const eventTitle = addEventTitle.value;
   const eventDescription = addEventDescription.value;
@@ -421,6 +422,18 @@ addEventSubmit.addEventListener("click", () => {
     }
   }
 
+  const event = {
+    title: eventTitle,
+    description: eventDescription,
+    timeFrom: eventTimeFrom,
+    timeTo: eventTimeTo,
+    allDay: allDay,
+    day: activeDay,
+    month: month + 1,
+    year: year,
+    date: new Date(year, month, activeDay) // Datum des Events
+  };
+
   if (editingEventId) {
     // Logik zum Updaten eines bestehenden Events
     editEventInFirestore(editingEventId, {
@@ -433,8 +446,16 @@ addEventSubmit.addEventListener("click", () => {
     });
   } else {
     // Logik zum Hinzufügen eines neuen Events
-    addEventToFirestore(newEvent);
+    addEventToFirestore(event);
   }
+
+  // Hier sollten Sie das Formular zurücksetzen und das Bearbeiten beenden
+  addEventWrapper.classList.remove("active");
+  addEventTitle.value = "";
+  addEventDescription.value = "";
+  addEventFrom.value = "";
+  addEventTo.value = "";
+  editingEventId = null; // Wichtig, um den Bearbeitungsmodus zu verlassen
 });
 
 function addEventToFirestore(newEvent) {
