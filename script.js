@@ -405,7 +405,6 @@ addEventTo.addEventListener("input", (e) => {
 });
 
 //function to add event to eventsArr
-//function to add event to eventsArr
 addEventSubmit.addEventListener("click", () => {
   const eventTitle = addEventTitle.value;
   const eventDescription = addEventDescription.value;
@@ -502,12 +501,8 @@ eventsContainer.addEventListener("click", (e) => {
       event.month === month + 1 &&
       event.year === year
     );
-
-    // Wenn ein Event-Objekt gefunden wird, öffnet und befüllt das Formular
-    if (eventObj) {
-      setEventFormData(eventObj);
-      addEventWrapper.classList.add("active");
-    }
+    setEventFormData(eventObj);
+    addEventWrapper.classList.add("active");
   }
 });
 
