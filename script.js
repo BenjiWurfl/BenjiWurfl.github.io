@@ -39,6 +39,21 @@ let activeDay;
 let month = today.getMonth();
 let year = today.getFullYear();
 
+function redirectToLogin() {
+  window.location.href = 'https://benjiwurfl.github.io/Login/';
+}
+
+// Authentifizierungsstatus beibehalten
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log("User is signed in with UID:", user.uid);
+    loadUserEvents();
+  } else {
+    console.log("No user is signed in.");
+    redirectToLogin();
+  }
+});
+
 // Funktion, um zu überprüfen, ob ein Event jetzt beginnt und eine Benachrichtigung anzuzeigen
 function checkForUpcomingEvents() {
   const currentTime = new Date();
@@ -46,7 +61,7 @@ function checkForUpcomingEvents() {
     let eventDate;
     if (eventObj.date.seconds) { // Wenn das Datum im Firestore Timestamp-Format vorliegt
       eventDate = new Date(eventObj.date.seconds * 1000);
-    } else { // Wenn das Datum als JavaScript-Date-Objekt vorliegt
+    } else {                     // Wenn das Datum als JavaScript-Date-Objekt vorliegt
       eventDate = new Date(eventObj.date);
     }
 
@@ -61,25 +76,24 @@ function checkForUpcomingEvents() {
   });
 }
 
-// Aufruf der Funktion mit einem Intervall
 setInterval(checkForUpcomingEvents, 60000);
 
 function markEventsOnCalendar() {
-  // Gehe durch alle Tage im aktuellen Monat im Kalender und prüfe, ob es für diesen Tag ein Event gibt
+  // Geht durch alle Tage im aktuellen Monat im Kalender und prüft, ob es für diesen Tag ein Event gibt
   document.querySelectorAll('.day:not(.prev-date):not(.next-date)').forEach(dayEl => {
     const day = Number(dayEl.textContent);
     const eventForDayExists = eventsArr.some(eventObj => eventObj.day === day && eventObj.month === month + 1 && eventObj.year === year);
     if (eventForDayExists) {
-      // Füge die Klasse 'event' hinzu, um den Tag visuell zu markieren
+      // Fügt die Klasse 'event' hinzu, um den Tag visuell zu markieren
       dayEl.classList.add('event');
     } else {
-      // Entferne die Klasse 'event', falls keine Events vorhanden sind
+      // Entfernt die Klasse 'event', falls keine Events vorhanden sind
       dayEl.classList.remove('event');
     }
   });
 }
 
-// Funktion zum Laden der Ereignisse des Benutzers aus Firestore
+// Funktion zum Laden der Events des Benutzers aus Firestore
 function loadUserEvents() {
   const user = auth.currentUser;
   if (user) {
@@ -115,24 +129,7 @@ function loadUserEvents() {
   }
 }
 
-function redirectToLogin() {
-  window.location.href = 'https://benjiwurfl.github.io/Login/';
-}
-
-// Authentifizierungsstatus beibehalten
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // Der Benutzer ist angemeldet und `user.uid` ist verfügbar.
-    console.log("User is signed in with UID:", user.uid);
-    // Hier können Sie Funktionen aufrufen, die die UID verwenden.
-    loadUserEvents();
-  } else {
-    // Kein Benutzer ist angemeldet.
-    console.log("No user is signed in.");
-    redirectToLogin();
-  }
-});
-
+// DOM-Elemente für den Kalender
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
   daysContainer = document.querySelector(".days"),
@@ -153,8 +150,9 @@ const calendar = document.querySelector(".calendar"),
   addEventDescription = document.querySelector(".event-description"),
   addEventSubmit = document.querySelector(".add-event-btn ");
 
-//function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
+// Funktion zum Initialisieren des Kalenders
 function initCalendar() {
+  // Bestimmt erste, letzte etc. Tage des aktuellen Monats
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const prevLastDay = new Date(year, month, 0);
@@ -163,16 +161,19 @@ function initCalendar() {
   const day = firstDay.getDay();
   const nextDays = 7 - lastDay.getDay() - 1;
 
+  // Setzt das Datum im Kalenderkopf
   date.innerHTML = months[month] + " " + year;
 
   let days = "";
 
+  // Fügt vorherige Tage des aktuellen Monats hinzu
   for (let x = day; x > 0; x--) {
     days += `<div class="day prev-date">${prevDays - x + 1}</div>`;
   }
 
+  // Fügt Tage des aktuellen Monats hinzu
   for (let i = 1; i <= lastDate; i++) {
-    //check if event is present on that day
+    //Überprüft, ob ein Ereignis an diesem Tag vorhanden ist
     let event = false;
     eventsArr.forEach((eventObj) => {
       if (
@@ -183,6 +184,7 @@ function initCalendar() {
         event = true;
       }
     });
+    // Aktuellen Tag markieren und Ereignisse hervorheben
     if (
       i === new Date().getDate() &&
       year === new Date().getFullYear() &&
@@ -197,6 +199,7 @@ function initCalendar() {
         days += `<div class="day today active">${i}</div>`;
       }
     } else {
+      // Tage ohne Ereignisse hinzufügen
       if (event) {
         days += `<div class="day event">${i}</div>`;
       } else {
@@ -205,16 +208,20 @@ function initCalendar() {
     }
   }
 
+  // Fügt nächste Tage des aktuellen Monats hinzu
   for (let j = 1; j <= nextDays; j++) {
     days += `<div class="day next-date">${j}</div>`;
   }
+
+  // Füllt den Kalender mit den Tagen
   daysContainer.innerHTML = days;
+
   addListner();
   loadUserEvents();
   markEventsOnCalendar();
 }
 
-//function to add month and year on prev and next button
+// Funktionen zum Hinzufügen von Monat und Jahr auf die Vor- und Zurück-Button
 function prevMonth() {
   month--;
   if (month < 0) {
@@ -240,24 +247,26 @@ next.addEventListener("click", nextMonth);
 
 initCalendar();
 
-//function to add active on day
+// Funktion zum Hinzufügen von Event-Listenern
 function addListner() {
+  // Alle Tage auswählen
   const days = document.querySelectorAll(".day");
+  // Für jeden Tag Klick-Listener hinzufügen
   days.forEach((day) => {
     day.addEventListener("click", (e) => {
+      // Aktiven Tag aktualisieren und Ereignisse aktualisieren
       getActiveDay(e.target.innerHTML);
       updateEvents(Number(e.target.innerHTML));
       activeDay = Number(e.target.innerHTML);
-      //remove active
+     
       days.forEach((day) => {
         day.classList.remove("active");
       });
-      //if clicked prev-date or next-date switch to that month
+      // Wenn auf Vorheriges od. Nächstes Datum geklickt wird --> zum entsprechenden Monat
       if (e.target.classList.contains("prev-date")) {
         prevMonth();
-        //add active to clicked day afte month is change
+        // Active Klasse zum angeklickten Tag nach dem Monatswechsel hinzufügen
         setTimeout(() => {
-          //add active where no prev-date or next-date
           const days = document.querySelectorAll(".day");
           days.forEach((day) => {
             if (
@@ -270,7 +279,7 @@ function addListner() {
         }, 100);
       } else if (e.target.classList.contains("next-date")) {
         nextMonth();
-        //add active to clicked day afte month is changed
+        // Active Klasse zum angeklickten Tag nach dem Monatswechsel hinzufügen
         setTimeout(() => {
           const days = document.querySelectorAll(".day");
           days.forEach((day) => {
@@ -283,12 +292,14 @@ function addListner() {
           });
         }, 100);
       } else {
+        // Fügt die active Klasse zum angeklickten Tag hinzu
         e.target.classList.add("active");
       }
     });
   });
 }
 
+// Event-Listener für today Button
 todayBtn.addEventListener("click", () => {
   today = new Date();
   month = today.getMonth();
@@ -296,14 +307,19 @@ todayBtn.addEventListener("click", () => {
   initCalendar();
 });
 
+// Event-Listener für Eingabefeld "Datum"
 dateInput.addEventListener("input", (e) => {
+  // Nur Zahlen und Schrägstriche im Eingabefeld zulassen
   dateInput.value = dateInput.value.replace(/[^0-9/]/g, "");
+  // Fügt automatisch Schrägstriche hinzu
   if (dateInput.value.length === 2) {
     dateInput.value += "/";
   }
+  // Begrenzt die Eingabe auf das Format MM/YYYY
   if (dateInput.value.length > 7) {
     dateInput.value = dateInput.value.slice(0, 7);
   }
+  // Bearbeite das Löschen von Zeichen im Eingabefeld
   if (e.inputType === "deleteContentBackward") {
     if (dateInput.value.length === 3) {
       dateInput.value = dateInput.value.slice(0, 2);
@@ -320,8 +336,8 @@ function gotoDate() {
     if (dateArr[0] > 0 && dateArr[0] < 13 && dateArr[1].length === 4) {
       month = dateArr[0] - 1;
       year = Number(dateArr[1]);
-      initCalendar(); // Initialisiert den Kalender neu mit dem neuen Monat und Jahr
-      loadUserEvents(); // Lädt die Ereignisse für den neuen Monat und das neue Jahr
+      initCalendar(); 
+      loadUserEvents(); 
       return;
     }
   }
@@ -329,7 +345,7 @@ function gotoDate() {
   markEventsOnCalendar();
 }
 
-//function get active day day name and date and update eventday eventdate
+// Funktion zum Abrufen des aktiven Tages
 function getActiveDay(date) {
   const day = new Date(year, month, date);
   const dayName = day.toString().split(" ")[0];
@@ -337,12 +353,16 @@ function getActiveDay(date) {
   eventDate.innerHTML = date + " " + months[month] + " " + year;
 }
 
+// Funktion zum Aktualisieren der Ereignisse
 function updateEvents(selectedDay) {
   let events = "";
+  // Durchlauft alle Ereignisse
   eventsArr.forEach((eventObj) => {
+    // Überprüft, ob das Ereignis am ausgewählten Tag stattfindet
     if (selectedDay === eventObj.day && month + 1 === eventObj.month && year === eventObj.year) {
       let eventTimeText = eventObj.allDay ? "Ganztägig" : `${eventObj.timeFrom} - ${eventObj.timeTo}`;
       let eventDescriptionText = eventObj.description ? `<div class="event-description">${eventObj.description}</div>` : "";
+      // Ereignis HTML hinzufügen
       events += `<div class="event">
         <div class="title">
           <i class="fas fa-circle"></i>
@@ -356,6 +376,7 @@ function updateEvents(selectedDay) {
     }
   });
 
+  // Falls keine Ereignisse vorhanden sind, entsprechende Meldung anzeigen
   if (events === "") {
     events = `<div class="no-event"><h3>No Events</h3></div>`;
   }
@@ -363,7 +384,6 @@ function updateEvents(selectedDay) {
   eventsContainer.innerHTML = events;
 }
 
-//function to add event
 addEventBtn.addEventListener("click", () => {
   addEventWrapper.classList.toggle("active");
 });
@@ -373,12 +393,12 @@ addEventCloseBtn.addEventListener("click", () => {
   resetEventFormData();
 });
 
-//allow 50 chars in eventtitle
+// Erlaubt 50 characters im Eventtitel
 addEventTitle.addEventListener("input", (e) => {
   addEventTitle.value = addEventTitle.value.slice(0, 60);
 });
 
-//allow only time in eventtime from and to
+// Erlaube nur Zeit im Ereigniszeitraum
 addEventFrom.addEventListener("input", (e) => {
   addEventFrom.value = addEventFrom.value.replace(/[^0-9:]/g, "");
   if (addEventFrom.value.length === 2) {
@@ -399,14 +419,15 @@ addEventTo.addEventListener("input", (e) => {
   }
 });
 
-//function to add event to eventsArr
+// Event-Listener für das Hinzufügen eines Ereignisses
 addEventSubmit.addEventListener("click", () => {
   const eventTitle = addEventTitle.value;
   const eventDescription = addEventDescription.value;
   const allDay = document.getElementById('allDayEvent').checked;
   let eventTimeFrom = '00:00';
   let eventTimeTo = '23:59';
-
+  
+  // Wenn es sich nicht um ein ganztägiges Ereignis handelt
   if (!allDay) {
     eventTimeFrom = addEventFrom.value;
     eventTimeTo = addEventTo.value;
@@ -416,6 +437,7 @@ addEventSubmit.addEventListener("click", () => {
     }
   }
 
+  // Ereignisobjekt erstellen
   const event = {
     title: eventTitle,
     description: eventDescription,
@@ -428,6 +450,7 @@ addEventSubmit.addEventListener("click", () => {
     date: new Date(year, month, activeDay) // Datum des Events
   };
 
+  // Wenn ein Ereignis bearbeitet wird
   if (editingEventId) {
     // Logik zum Updaten eines bestehenden Events
     editEventInFirestore(editingEventId, {
@@ -436,22 +459,21 @@ addEventSubmit.addEventListener("click", () => {
       timeFrom: eventTimeFrom,
       timeTo: eventTimeTo,
       allDay: allDay
-      // Weitere zu aktualisierende Felder...
     });
   } else {
-    // Logik zum Hinzufügen eines neuen Events
     addEventToFirestore(event);
   }
 
-  // Hier sollten Sie das Formular zurücksetzen und das Bearbeiten beenden
+  // Formular zurücksetzen und das Bearbeiten beenden
   addEventWrapper.classList.remove("active");
   addEventTitle.value = "";
   addEventDescription.value = "";
   addEventFrom.value = "";
   addEventTo.value = "";
-  editingEventId = null; // Wichtig, um den Bearbeitungsmodus zu verlassen
+  editingEventId = null; // Bearbeitungsmodus verlassen
 });
 
+// Funktion zum Hinzufügen eines Ereignisses zu Firestore
 function addEventToFirestore(newEvent) {
   const user = auth.currentUser;
   if (!user) {
@@ -459,16 +481,16 @@ function addEventToFirestore(newEvent) {
     return;
   }
 
-  // Erstellen Sie eine Referenz zur "events"-Subkollektion des aktuellen Benutzers
+  // Referenz zur "events"-Subkollektion des aktuellen Benutzers erstellen
   const eventsRef = collection(db, "users", user.uid, "events");
 
-  // Fügen Sie das neue Event zur Datenbank hinzu
+  // Neues Ereignis zur Datenbank hinzufügen
   addDoc(eventsRef, newEvent).then(docRef => {
     console.log("Event added with ID: ", docRef.id);
-    newEvent.id = docRef.id; // Fügen Sie die ID zum Event hinzu
-    eventsArr.push(newEvent); // Fügen Sie das Event zum Array hinzu
-    updateEvents(activeDay); // Aktualisieren Sie den Kalender
-    //select active day and add event class if not added
+    newEvent.id = docRef.id; // ID zum Ereignis hinzufügen
+    eventsArr.push(newEvent); // Ereignis zum Array hinzufügen
+    updateEvents(activeDay); // Kalender aktualisieren
+    
     const activeDayEl = document.querySelector(".day.active");
     if (!activeDayEl.classList.contains("event")) {
       activeDayEl.classList.add("event");
@@ -477,6 +499,7 @@ function addEventToFirestore(newEvent) {
     console.error("Error adding event: ", error);
   });
 
+  // Formular zurücksetzen
   addEventWrapper.classList.remove("active");
   addEventTitle.value = "";
   addEventDescription.value = "";
@@ -504,15 +527,15 @@ eventsContainer.addEventListener("click", (e) => {
   }
 });
 
-// Logik für den Delete-Button aktualisieren, um das Formular zu schließen und zurückzusetzen
+// Delete-Button aktualisieren, um das Formular zu schließen und zurückzusetzen
 document.querySelector(".delete-event-btn").addEventListener("click", () => {
   if (editingEventId && confirm("Are you sure you want to delete this event?")) {
     deleteEventFromFirestore(editingEventId);
-    resetEventFormData(); // Formular zurücksetzen, wenn das Event gelöscht wird
+    resetEventFormData(); 
   }
 });
 
-// Funktion zum Löschen eines Events aus Firestore und Schließen des Formulars
+// Funktion zum Löschen eines Events aus Firestore 
 function deleteEventFromFirestore(eventId) {
   const user = auth.currentUser;
   if (!user) {
@@ -565,7 +588,7 @@ function setEventFormData(eventObj) {
   editingEventId = eventObj.id;
 }
 
-// Bearbeitete Event-Funktion, um Event zu aktualisieren
+// Funktion um Event zu aktualisieren
 function editEventInFirestore(eventId, updatedEvent) {
   const user = auth.currentUser;
   if (!user) {
@@ -573,11 +596,12 @@ function editEventInFirestore(eventId, updatedEvent) {
     return;
   }
 
+  // Referenz zum zu bearbeitenden Ereignis erstellen
   const eventRef = doc(db, "users", user.uid, "events", eventId);
   updateDoc(eventRef, updatedEvent)
     .then(() => {
       console.log("Event successfully updated!");
-      loadUserEvents(); // Lädt die Events neu
+      loadUserEvents(); 
     })
     .catch(error => {
       console.error("Error updating event: ", error);

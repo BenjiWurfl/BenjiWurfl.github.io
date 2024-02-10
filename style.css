@@ -1,3 +1,4 @@
+/* Allgemeine Formatierung */
 :root {
     --primary-clr: #381DDB;
   }
@@ -7,7 +8,7 @@
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
   }
-  /* nice scroll bar */
+  /* scroll bar */
   ::-webkit-scrollbar {
     width: 5px;
   }
@@ -45,6 +46,8 @@
     width: 60%;
     padding: 20px;
   }
+
+  /* Kalenderformatierung */
   .calendar {
     position: relative;
     width: 100%;
@@ -57,7 +60,7 @@
     border-radius: 5px;
     background-color: #fff;
   }
-  /* set after behind the main element */
+  
   .calendar::before,
   .calendar::after {
     content: "";
@@ -294,7 +297,7 @@
     background: linear-gradient(90deg, #3f4458, transparent);
     cursor: pointer;
   }
-  /* even event */
+  
   .events .event:nth-child(even) {
     background: transparent;
   }
@@ -328,7 +331,7 @@
   .events .event:hover .event-time {
     color: #fff;
   }
-  /* add tick in event after */
+  
   .events .event::after {
     content: "✓";
     position: absolute;
@@ -475,7 +478,7 @@
     color: var(--primary-clr);
   }
   
-  /* media queries */
+  /* media queries: Anpassung für kleinere Bildschirme */
   
   @media screen and (max-width: 1000px) {
     body {
@@ -536,11 +539,13 @@
       padding: 20px;
     }
   }
+
+  /* Event Body: Checkbox und Description */
   .add-event-body .all-day-checkbox {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    margin-top: 10px; /* Abstand von den Zeit-Eingabefeldern */
+    margin-top: 10px; 
   }
   
   .add-event-body .all-day-checkbox label {
@@ -548,46 +553,42 @@
     align-items: center;
     cursor: pointer;
     font-size: 0.9rem;
-    color: #373c4f; /* Farbe des Textes anpassen, falls nötig */
+    color: #373c4f; 
   }
   
   .add-event-body .all-day-checkbox input[type="checkbox"] {
-    margin-right: 10px; /* Abstand zwischen Checkbox und Label */
+    margin-right: 10px; 
     cursor: pointer;
   }
   
-  /* Style für die Checkbox, um es ähnlich wie andere Eingabefelder aussehen zu lassen */
   .add-event-body .all-day-checkbox input[type="checkbox"] {
-    accent-color: var(--primary-clr); /* Farbe der Checkbox */
-    width: 16px; /* Größe der Checkbox */
+    accent-color: var(--primary-clr); 
+    width: 16px; 
     height: 16px;
   }
-  
-  /* Hover-Effekt für das Checkbox-Label für bessere Benutzerfreundlichkeit */
+ 
   .add-event-body .all-day-checkbox label:hover {
-    color: var(--primary-clr); /* Farbe beim Hovern */
+    color: var(--primary-clr); 
   }
   
-  /* Stil für die Beschreibung (Description) Eingabefeld */
   .add-event-body .event-description {
-  margin-top: 10px; /* Abstand zwischen dem Event Name und dem Description Feld */
+  margin-top: 10px; 
   }
 
   /* Anpassungen für kleinere Bildschirme */
   @media screen and (max-width: 500px) {
     .add-event-body .event-description {
-      font-size: 0.9rem; /* Anpassung der Schriftgröße auf kleineren Bildschirmen */
+      font-size: 0.9rem; 
     }
   }
 
 /* Formatierung für die Anzeige der Events */
-
 .events .event {
-  margin-bottom: 15px; /* Erhöhter Abstand zwischen den Events */
-  padding: 10px; /* Innenabstand für das Event-Element */
-  background-color: rgba(255, 255, 255, 0.05); /* Leichter Hintergrund für jedes Event */
-  border-left: 3px solid var(--primary-clr); /* Vertikale Linie als visuelle Trennung */
-  border-radius: 5px; /* Abgerundete Ecken für das Event-Element */
+  margin-bottom: 15px; 
+  padding: 10px; 
+  background-color: rgba(255, 255, 255, 0.05); 
+  border-left: 3px solid var(--primary-clr); 
+  border-radius: 5px; 
 }
 
 .events .event .title {
@@ -619,7 +620,7 @@
   cursor: pointer;
   padding: 5px 10px;
   border: 1px solid var(--primary-clr);
-  margin-left: 10px; /* Abstand zum Speichern-Button */
+  margin-left: 10px; 
 }
 
 .delete-event-btn:hover {
