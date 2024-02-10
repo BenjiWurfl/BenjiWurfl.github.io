@@ -370,6 +370,7 @@ addEventBtn.addEventListener("click", () => {
 
 addEventCloseBtn.addEventListener("click", () => {
   addEventWrapper.classList.remove("active");
+  resetEventFormData();
 });
 
 //allow 50 chars in eventtitle
