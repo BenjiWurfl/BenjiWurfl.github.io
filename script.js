@@ -360,7 +360,7 @@ function updateEvents(selectedDay) {
   eventsArr.forEach((eventObj) => {
     // Überprüft, ob das Ereignis am ausgewählten Tag stattfindet
     if (selectedDay === eventObj.day && month + 1 === eventObj.month && year === eventObj.year) {
-      let eventTimeText = eventObj.allDay ? "all day" : `${eventObj.timeFrom} - ${eventObj.timeTo}`;
+      let eventTimeText = eventObj.allDay ? "All Day" : `${eventObj.timeFrom} - ${eventObj.timeTo}`;
       let eventDescriptionText = eventObj.description ? `<div class="event-description">${eventObj.description}</div>` : "";
       // Ereignis HTML hinzufügen
       events += `<div class="event">
