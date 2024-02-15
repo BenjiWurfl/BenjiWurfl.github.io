@@ -129,6 +129,8 @@ function loadUserEvents() {
   }
 }
 
+const closeIcon = document.querySelector(".add-event-header .close");
+
 // DOM-Elemente für den Kalender
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
@@ -143,7 +145,7 @@ const calendar = document.querySelector(".calendar"),
   eventsContainer = document.querySelector(".events"),
   addEventBtn = document.querySelector(".add-event"),
   addEventWrapper = document.querySelector(".add-event-wrapper "),
-  addEventCloseBtn = document.querySelector(".close "),
+  //addEventCloseBtn = document.querySelector(".close "),
   addEventTitle = document.querySelector(".event-name "),
   addEventFrom = document.querySelector(".event-time-from "),
   addEventTo = document.querySelector(".event-time-to "),
@@ -388,7 +390,7 @@ addEventBtn.addEventListener("click", () => {
   addEventWrapper.classList.toggle("active");
 });
 
-addEventCloseBtn.addEventListener("click", () => {
+closeIcon.addEventListener("click", () => {
   console.log("CloseBtn wird ausgeführt");
   addEventWrapper.classList.remove("active");
   resetEventFormData();
