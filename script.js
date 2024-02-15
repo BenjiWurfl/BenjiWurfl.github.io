@@ -389,8 +389,10 @@ addEventBtn.addEventListener("click", () => {
 });
 
 addEventCloseBtn.addEventListener("click", () => {
+  console.log("CloseBtn wird ausgeführt");
   addEventWrapper.classList.remove("active");
   resetEventFormData();
+  console.log("resetEventFormData wird aufgerufen");
 });
 
 // Erlaubt 50 characters im Eventtitel
@@ -610,7 +612,6 @@ function editEventInFirestore(eventId, updatedEvent) {
 
 //Navbar
 
-/*
 const body = document.querySelector('body'),
       sidebar = body.querySelector('nav'),
       toggle = body.querySelector(".toggle"),
@@ -632,4 +633,3 @@ modeSwitch.addEventListener("click" , () =>{
         
     }
 });
-*/
