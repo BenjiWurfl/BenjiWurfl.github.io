@@ -71,7 +71,7 @@ function checkForUpcomingEvents() {
 
     // Überprüfung, ob das Event in der letzten Minute begonnen hat
     if (eventTime <= currentTime && eventTime > new Date(currentTime - 60000)) {
-      alert(`Ihr Event "${eventObj.title}" hat begonnen!`);
+      alert(`Your event "${eventObj.title}" has started!`);
     }
   });
 }
@@ -432,7 +432,7 @@ addEventSubmit.addEventListener("click", () => {
     eventTimeFrom = addEventFrom.value;
     eventTimeTo = addEventTo.value;
     if (eventTitle === "" || eventDescription === "" || eventTimeFrom === "" || eventTimeTo === "") {
-      alert("Bitte füllen Sie alle Felder aus, es sei denn, es ist ein ganztägiges Ereignis.");
+      alert("Please fill out all fields unless it's an all-day event.");
       return;
     }
   }
